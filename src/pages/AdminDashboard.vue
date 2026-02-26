@@ -17,7 +17,7 @@
           </b>
         </span>
         <label class="switch">
-          <input type="checkbox" v-model="messOpen" @change="saveMessStatus">
+          <input type="checkbox" v-model="messOpen" @change="saveMessStatus" :disabled="statusLoading" />
           <span class="slider"></span>
         </label>
       </div>
@@ -38,8 +38,18 @@
         <label>Menu Items</label>
 
         <div class="menu-row" v-for="(row, index) in rows" :key="index">
-          <Multiselect v-model="row.selected" :options="allItems" :multiple="false" :taggable="true" :close-on-select="true"
-            placeholder="Search or add food item" @tag="addNewItem" class="multi" :disabled="!messOpen"/>
+          <Multiselect v-model="row.selected" :options="allItems" label="label" track-by="value" :multiple="false"
+            :taggable="false" :close-on-select="true" :show-labels="false" placeholder="Select food item" class="multi"
+            :disabled="!messOpen">
+
+            <template #option="{ option }">
+              <div class="option-row">
+                <span>{{ option.label }}</span>
+                <i class="pi pi-trash option-delete" @click.stop="deleteMeal(option)"></i>
+              </div>
+            </template>
+
+          </Multiselect>
           <button class="remove-btn" @click="removeRow(index)"> <i class="pi pi-trash delete-btn-color"></i> </button>
         </div>
         <button class="add-btn" @click="addRow">
@@ -60,13 +70,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
-import { addMealApi } from '@/services/api'
+import { addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi } from '@/services/api'
 
 const router = useRouter()
 const messOpen = ref(true)
+const statusLoading = ref(false)
+const success = ref(false)
+const loading = ref(false)
+const rows = ref([{ selected: null }])
+const allItems = ref([])
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -84,44 +99,67 @@ const mealMap = {
   Lunch: 1,
   Dinner: 2
 }
-
-/* ---------- ALL MENU ITEMS ---------- */
-const allItems = ref([
-  'Veg Thali',
-  'Chicken Thali',
-  'Egg Thali',
-  'Paneer Masala',
-  'Dal Fry',
-  'Chapati',
-  'Rice'
-])
-
 /* ---------- MULTISELECT ROWS ---------- */
-const rows = ref([{ selected: null }])
-
 function addRow() {
   rows.value.push({ selected: [] })
 }
 
-function removeRow(index) {
-  rows.value.splice(index, 1)
-}
+async function deleteMeal(option) {
+  try {
+    await deleteMealApi(option.value)
+    allItems.value = allItems.value.filter(
+      item => item.value !== option.value
+    )
+    rows.value.forEach(row => {
+      if (row.selected?.value === option.value) {
+        row.selected = null
+      }
+    })
 
-function addNewItem(newItem) {
-  const item = newItem.trim()
-  if (!item) return
-  if (!allItems.value.includes(item)) {
-    allItems.value.push(item)
+  } catch (error) {
+    alert('Failed to delete meal')
   }
 }
+
 function logout() {
   localStorage.removeItem('token')
   router.push('/login')
 }
 
+async function fetchMeals() {
+  try {
+    const res = await getMealsApi()
+    allItems.value = res.data.map(meal => ({
+      label: meal.meal_name,
+      value: meal.id 
+    }))
+  } catch (error) {
+    console.log('Failed to fetch meals')
+  }
+}
+
+async function fetchMessStatus() {
+  try {
+    const res = await getUserStatusApi()
+    messOpen.value = res.data.status_flag == "1"
+  } catch (error) {
+    console.log('Failed to fetch status')
+  }
+}
+
 /* ---------- SAVE MENU (API INTEGRATION) ---------- */
-const success = ref(false)
-const loading = ref(false)
+async function saveMessStatus() {
+  const previousValue = !messOpen.value
+  statusLoading.value = true
+  try {
+    await updateUserStatusApi(messOpen.value ? 1 : 0)
+  } catch (error) {
+    messOpen.value = previousValue
+    alert('Failed to update mess status')
+  } finally {
+    statusLoading.value = false
+  }
+}
 
 async function saveMenu() {
   if (!mealType.value) {
@@ -155,6 +193,10 @@ async function saveMenu() {
     loading.value = false
   }
 }
+onMounted(() => {
+  fetchMessStatus()
+  fetchMeals()
+})
 </script>
 
 <style scoped>
@@ -452,13 +494,14 @@ label {
 /* MULTISELECT IMPROVEMENTS */
 /* ============================= */
 :deep(.multiselect__single) {
-    padding-left: 5px;
-    margin-bottom: 0px;
-    align-items: center;
-    text-align: center;
-    padding-top: 6px;
-    background: #f9fafb;
+  padding-left: 5px;
+  margin-bottom: 0px;
+  align-items: center;
+  text-align: center;
+  padding-top: 6px;
+  background: #f9fafb;
 }
+
 :deep(.multiselect__tags) {
   min-height: 48px;
   border-radius: 14px;
@@ -466,14 +509,33 @@ label {
   background: #f9fafb;
 }
 
-:deep(.multiselect__placeholder ) {
+:deep(.multiselect__placeholder) {
   padding-top: 5px;
+}
+:deep(.option-row) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+:deep(.option-delete) {
+  font-size: 14px;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+:deep(.option-delete:hover) {
+  background: #fee2e2;
 }
 
 :deep(.multiselect__option--selected) {
   background: #87f578;
   color: rgb(14, 13, 13);
 }
+
 .delete-btn-color {
   font-size: 16px;
   color: #ef4444;

@@ -24,5 +24,39 @@ export const addMealApi = (data) => {
     }
   })
 }
+// UPDATE USER STATUS (Open / Close Mess)
+export const updateUserStatusApi = (statusFlag) => {
+  return api.get(`/user-status?status_flag=${statusFlag}`, {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
+
+// GET CURRENT USER STATUS
+export const getUserStatusApi = () => {
+  return api.get('/user-status', {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
+// GET ALL MEALS
+export const getMealsApi = () => {
+  return api.get('/meals', {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
+
+// DELETE MEAL BY ID
+export const deleteMealApi = (mealId) => {
+  return api.delete(`/meals/${mealId}`, {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
 
 export default api
