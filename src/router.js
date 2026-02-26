@@ -1,3 +1,4 @@
+// router.js
 import { createRouter, createWebHistory } from 'vue-router'
 
 import AdminLogin from './pages/AdminLogin.vue'
@@ -7,14 +8,17 @@ import MenuView from './pages/MenuView.vue'
 const routes = [
   {
     path: '/',
+    name: 'Home',
     component: MenuView
   },
   {
     path: '/login',
+    name: 'Login',
     component: AdminLogin
   },
   {
     path: '/admin',
+    name: 'AdminDashboard',
     component: AdminDashboard,
     meta: { requiresAuth: true }
   }
@@ -25,20 +29,26 @@ const router = createRouter({
   routes
 })
 
-/* 🔐 ROUTE GUARD (IMPORTANT) */
+/* 🔐 ROUTE GUARD */
 router.beforeEach((to, from, next) => {
 
-  const isAdminLoggedIn = localStorage.getItem('messAdmin')
+  // Check token instead of just messAdmin flag
+  const token = localStorage.getItem('token')
+  const isLoggedIn = !!token
 
-  // If trying to open admin page without login
-  if (to.meta.requiresAuth && !isAdminLoggedIn) {
-    next('/login')
+  // If route requires authentication
+  if (to.meta.requiresAuth) {
+    if (!isLoggedIn) {
+      next({ name: 'Login' })
+    } else {
+      next()
+    }
     return
   }
 
-  // If already logged in and opens login page
-  if (to.path === '/login' && isAdminLoggedIn) {
-    next('/admin')
+  // If already logged in and tries to open login page
+  if (to.name === 'Login' && isLoggedIn) {
+    next({ name: 'AdminDashboard' })
     return
   }
 

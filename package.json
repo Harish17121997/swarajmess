@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.13.5",
     "primeicons": "^7.0.0",
     "vue": "^3.5.28",
     "vue-multiselect": "^3.4.0",

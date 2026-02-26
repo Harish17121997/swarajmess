@@ -25,8 +25,9 @@
       <!-- MEAL TYPE -->
       <div class="form-group">
         <label>Meal Type</label>
-        <select v-model="mealType" class="input">
+        <select v-model="mealType" class="input" :disabled="!messOpen">
           <option disabled value="">Select Meal</option>
+          <option>Breakfast</option>
           <option>Lunch</option>
           <option>Dinner</option>
         </select>
@@ -37,9 +38,8 @@
         <label>Menu Items</label>
 
         <div class="menu-row" v-for="(row, index) in rows" :key="index">
-          <Multiselect v-model="row.selected" :options="allItems" :taggable="true" :close-on-select="true"
-            placeholder="Search or add food item" tag-placeholder="Press enter to add" @tag="addNewItem"
-            class="multi" />
+          <Multiselect v-model="row.selected" :options="allItems" :multiple="false" :taggable="true" :close-on-select="true"
+            placeholder="Search or add food item" @tag="addNewItem" class="multi" :disabled="!messOpen"/>
           <button class="remove-btn" @click="removeRow(index)"> <i class="pi pi-trash delete-btn-color"></i> </button>
         </div>
         <button class="add-btn" @click="addRow">
@@ -48,8 +48,8 @@
       </div>
 
       <!-- SAVE -->
-      <button class="save-btn" @click="saveMenu">
-        Save Menu
+      <button class="save-btn" @click="saveMenu" :disabled="loading || !messOpen">
+        {{ loading ? 'Saving...' : 'Save Menu' }}
       </button>
       <p v-if="success" class="success-msg">
         ✔ Menu Saved Successfully
@@ -60,19 +60,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
+import { addMealApi } from '@/services/api'
 
 const router = useRouter()
-
-/* ---------- ROUTE PROTECTION ---------- */
-onMounted(() => {
-  if (!localStorage.getItem('messAdmin')) {
-    router.push('/login')
-  }
-})
-
+const messOpen = ref(true)
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -84,23 +78,26 @@ const today = new Date().toLocaleDateString('en-IN', {
 /* ---------- MEAL TYPE ---------- */
 const mealType = ref('')
 
-/* ---------- ALL MENU ITEMS (PERMANENT STORAGE) ---------- */
-const allItems = ref(
-  JSON.parse(localStorage.getItem('allMenuItems')) || [
-    'Veg Thali',
-    'Chicken Thali',
-    'Egg Thali',
-    'Paneer Masala',
-    'Dal Fry',
-    'Chapati',
-    'Rice'
-  ]
-)
+/* ---------- MEAL FLAG MAPPING ---------- */
+const mealMap = {
+  Breakfast: 0,
+  Lunch: 1,
+  Dinner: 2
+}
+
+/* ---------- ALL MENU ITEMS ---------- */
+const allItems = ref([
+  'Veg Thali',
+  'Chicken Thali',
+  'Egg Thali',
+  'Paneer Masala',
+  'Dal Fry',
+  'Chapati',
+  'Rice'
+])
 
 /* ---------- MULTISELECT ROWS ---------- */
-const rows = ref([
-  { selected: [] }
-])
+const rows = ref([{ selected: null }])
 
 function addRow() {
   rows.value.push({ selected: [] })
@@ -110,80 +107,57 @@ function removeRow(index) {
   rows.value.splice(index, 1)
 }
 
-/* ---------- ADD NEW ITEM FROM SEARCH ---------- */
 function addNewItem(newItem) {
   const item = newItem.trim()
-
   if (!item) return
-
-  // If item not exists → permanently save
   if (!allItems.value.includes(item)) {
     allItems.value.push(item)
-
-    localStorage.setItem(
-      'allMenuItems',
-      JSON.stringify(allItems.value)
-    )
   }
 }
-/* ---------- MESS STATUS ---------- */
-const messOpen = ref(
-  JSON.parse(localStorage.getItem('messOpen')) ?? true
-)
-
-function saveMessStatus() {
-  localStorage.setItem('messOpen', JSON.stringify(messOpen.value))
-}
-
-/* ---------- LOGOUT ---------- */
 function logout() {
-  localStorage.removeItem('messAdmin')
+  localStorage.removeItem('token')
   router.push('/login')
 }
 
-/* ---------- SAVE MENU ---------- */
+/* ---------- SAVE MENU (API INTEGRATION) ---------- */
 const success = ref(false)
+const loading = ref(false)
 
-function saveMenu() {
-
+async function saveMenu() {
   if (!mealType.value) {
-    alert('Please select Lunch or Dinner')
+    alert('Please select meal type')
     return
   }
-
   let items = []
-
-  // collect selected items from all rows
   rows.value.forEach(row => {
-    if (row.selected && row.selected.length) {
-      items.push(...row.selected)
+    if (row.selected) {
+      items.push(row.selected)
     }
   })
-
-  // remove duplicates
   items = [...new Set(items)]
 
   if (items.length === 0) {
-    alert('Add at least one menu item')
+    alert('Select at least one menu item')
     return
   }
+  loading.value = true
+  success.value = false
 
-  // Save today menu
-  localStorage.setItem('todayMenu', JSON.stringify({
-    date: today,
-    meal: mealType.value,
-    items
-  }))
+  try {
+    await addMealApi({ meal_flag: mealMap[mealType.value], meal_name: items })
+    success.value = true
+    rows.value = [{ selected: null }]
+    mealType.value = ''
 
-  success.value = true
+  } catch (error) {
+    alert(error.response?.data?.message || 'Failed to save menu')
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
 <style scoped>
-/* ============================= */
-/* GLOBAL PAGE BACKGROUND */
-/* ============================= */
-
 .admin-page {
   min-height: 100vh;
   display: flex;
@@ -492,15 +466,9 @@ label {
   background: #f9fafb;
 }
 
-/* :deep(.multiselect__tag) {
-  background: linear-gradient(135deg, #96c9e0, #6087dd);
-  border-radius: 8px;
-} */
-
-/* :deep(.multiselect__option--highlight) {
-  background: #0ea5e9;
-  color: white;
-} */
+:deep(.multiselect__placeholder ) {
+  padding-top: 5px;
+}
 
 :deep(.multiselect__option--selected) {
   background: #87f578;

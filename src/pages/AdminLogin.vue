@@ -6,20 +6,35 @@
     <div class="login-card">
       <div class="header">
         <div class="icon">🍽</div>
-        <h1>Mess Admin</h1>
-        <p>Login to manage daily menu</p>
+        <h1>{{ isRegister ? 'Register Mess' : 'Mess Admin' }}</h1>
+        <p>
+          {{ isRegister ? 'Create new mess account' : 'Login to manage daily menu' }}
+        </p>
       </div>
 
-      <div class="form-group">
-        <label>Username</label>
+      <!-- Mess Name (Only Register) -->
+      <div v-if="isRegister" class="form-group">
+        <label>Mess Name</label>
         <input
-          v-model="username"
+          v-model="messName"
           type="text"
-          placeholder="Enter username"
+          placeholder="Enter mess name"
           class="input"
         />
       </div>
 
+      <!-- Username -->
+      <div class="form-group">
+        <label>Username / Mobile</label>
+        <input
+          v-model="username"
+          type="text"
+          placeholder="Enter username or mobile"
+          class="input"
+        />
+      </div>
+
+      <!-- Password -->
       <div class="form-group">
         <label>Password</label>
         <input
@@ -27,16 +42,30 @@
           type="password"
           placeholder="Enter password"
           class="input"
-          @keyup.enter="login"
+          @keyup.enter="handleSubmit"
         />
       </div>
 
-      <button @click="login" class="login-btn">
-        Login
+      <!-- Button -->
+      <button
+        class="login-btn"
+        @click="handleSubmit"
+        :disabled="loading"
+      >
+        {{ loading ? 'Please wait...' : isRegister ? 'Register' : 'Login' }}
       </button>
 
-      <p v-if="error" class="error-msg">
-        {{ error }}
+      <!-- Toggle -->
+      <p class="toggle-text">
+        {{ isRegister ? 'Already have account?' : 'New user?' }}
+        <span @click="toggleForm">
+          {{ isRegister ? 'Login here' : 'Register here' }}
+        </span>
+      </p>
+
+      <!-- Error / Success -->
+      <p v-if="message" :class="success ? 'success-msg' : 'error-msg'">
+        {{ message }}
       </p>
     </div>
   </div>
@@ -45,22 +74,84 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { loginApi, registerApi } from '@/services/api'
 
-const username = ref('')
-const password = ref('')
-const error = ref('')
 const router = useRouter()
 
-function login() {
-  if (username.value.trim() === 'admin' && password.value === '1234') {
-    localStorage.setItem('messAdmin', 'true')
-    router.push('/admin')
-  } else {
-    error.value = 'Invalid username or password'
+const isRegister = ref(false)
+const messName = ref('')
+const username = ref('')
+const password = ref('')
+const message = ref('')
+const success = ref(false)
+const loading = ref(false)
+
+const clearForm = () => {
+  messName.value = ''
+  username.value = ''
+  password.value = ''
+}
+
+const toggleForm = () => {
+  isRegister.value = !isRegister.value
+  message.value = ''
+  clearForm()
+}
+
+const handleSubmit = async () => {
+  message.value = ''
+  success.value = false
+
+  if (!username.value || !password.value) {
+    message.value = 'Please fill all required fields'
+    return
+  }
+
+  if (isRegister.value && !messName.value) {
+    message.value = 'Please enter mess name'
+    return
+  }
+
+  loading.value = true
+
+  try {
+    if (isRegister.value) {
+      // REGISTER
+      await registerApi({
+        name: messName.value,
+        mobile: username.value,
+        password: password.value
+      })
+
+      success.value = true
+      message.value = 'Registration successful! Please login.'
+      isRegister.value = false
+      clearForm()
+
+    } else {
+      // LOGIN
+      const res = await loginApi({
+        mobile: username.value,
+        password: password.value
+      })
+
+      // Save token if backend sends it
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token)
+      }
+
+      localStorage.setItem('messAdmin', 'true')
+      router.push('/admin')
+    }
+
+  } catch (err) {
+    message.value =
+      err.response?.data?.message || 'Something went wrong'
+  } finally {
+    loading.value = false
   }
 }
 </script>
-
 <style scoped>
 
 /* ===== FULL SCREEN LAYOUT ===== */
@@ -215,4 +306,39 @@ label {
   }
 }
 
+</style>
+<style scoped>
+/* Keep your existing CSS */
+/* Add below styles */
+
+.toggle-text {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.toggle-text span {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.toggle-text span:hover {
+  text-decoration: underline;
+}
+
+.success-msg {
+  margin-top: 12px;
+  text-align: center;
+  color: #16a34a;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 </style>
