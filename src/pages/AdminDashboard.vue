@@ -4,11 +4,43 @@
       <!-- HEADER -->
       <div class="header">
         <div>
-          <h2>Swaraj Mess Admin</h2>
+          <h2><span class="mess-name">{{ messName }} </span> Mess Admin</h2>
           <p class="date">{{ today }}</p>
         </div>
         <button class="logout-btn" @click="logout">Logout</button>
       </div>
+      <div class="dashboard-container">
+        <div class="dashboard-header">
+          <h2 class="dashboard-title">Dashboard</h2>
+          <p class="sub-text">Visitor Analytics Overview</p>
+        </div>
+
+        <!-- Top Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <p>Total Visitors</p>
+            <h3>{{ stats.total_visits }}</h3>
+          </div>
+
+          <div class="stat-card">
+            <p>Today's Visitors</p>
+            <h3>{{ stats.today_visits }}</h3>
+          </div>
+        </div>
+
+        <!-- Monthly Breakdown -->
+        <div class="monthly-section">
+          <h4>Monthly Overview</h4>
+
+          <div class="month-grid">
+            <div v-for="month in monthlyStats" :key="month.name" class="month-card">
+              <span>{{ month.name }}</span>
+              <strong>{{ month.count }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="horizontal"/>
 
       <div class="mess-toggle">
         <span class="status-text">
@@ -70,38 +102,8 @@
       <p v-if="success" class="success-msg">
         ✔ Menu Saved Successfully
       </p>
-      <hr class="horizontal"/>
-      <div class="dashboard-container">
-        <div class="dashboard-header">
-          <h2>Dashboard</h2>
-          <p class="sub-text">Visitor Analytics Overview</p>
-        </div>
-
-        <!-- Top Stats -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <p>Total Visitors</p>
-            <h3>{{ stats.total_visits }}</h3>
-          </div>
-
-          <div class="stat-card">
-            <p>Today's Visitors</p>
-            <h3>{{ stats.today_visits }}</h3>
-          </div>
-        </div>
-
-        <!-- Monthly Breakdown -->
-        <div class="monthly-section">
-          <h4>Monthly Overview</h4>
-
-          <div class="month-grid">
-            <div v-for="month in monthlyStats" :key="month.name" class="month-card">
-              <span>{{ month.name }}</span>
-              <strong>{{ month.count }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
+ 
+      
 
       <!-- ================= CURRENT MEALS LIST ================= -->
       <div v-if="messOpen" class="current-section">
@@ -166,6 +168,7 @@ const addingMeal = ref(false)
 const mealType = ref(null)
 const currentMeals = ref([])
 const currentLoading = ref(false)
+const messName = ref('')
 const stats = ref({
   total_visits: 0,
   today_visits: 0,
@@ -283,6 +286,7 @@ async function fetchMessStatus() {
   try {
     const res = await getUserStatusApi()
     messOpen.value = res.data.status_flag == "1"
+    messName.value = res.data.user_name
   } catch (error) {
     console.log('Failed to fetch status')
   }
@@ -395,6 +399,9 @@ onMounted(() => {
     linear-gradient(180deg, #f8fafc, #eef2f7);
 
   font-family: 'Inter', sans-serif;
+}
+.mess-name{
+  text-transform: capitalize;
 }
 
 /* ============================= */
@@ -689,8 +696,12 @@ label {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 4px;
+  margin-top: 0px
 }
-
+.dashboard-title {
+  font-size: 16px;
+  color: #f34500;
+}
 .sub-text {
   font-size: 13px;
   color: #6b7280;
@@ -791,7 +802,7 @@ label {
   }
 
   .stat-card {
-    padding: 12px;
+    padding: 1px;
   }
 
   .stat-card h3 {
@@ -863,7 +874,10 @@ label {
   font-size: 14px;
   font-weight: 600;
   color: #2563eb;
+  border-radius: 5px;
   margin-bottom: 8px;
+  padding: 7px 0px;
+  box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2), 4px 0 3px 0 rgba(0, 0, 0, 0.14), 1px 0 10px 0 rgba(0, 0, 0, 0.12)
 }
 
 .meal-item {
@@ -903,7 +917,7 @@ label {
   gap: 10px;
 }
 .horizontal {
-  margin-top: 20px;
+  margin: 20px 0px;
   border: 1px solid #e2e8f0;;
 }
 </style>
