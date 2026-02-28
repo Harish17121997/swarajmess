@@ -70,6 +70,7 @@
       <p v-if="success" class="success-msg">
         ✔ Menu Saved Successfully
       </p>
+      <hr class="horizontal"/>
       <div class="dashboard-container">
         <div class="dashboard-header">
           <h2>Dashboard</h2>
@@ -681,6 +682,7 @@ label {
 /* Header */
 .dashboard-header {
   margin-bottom: 16px;
+  padding-top: 5px;
 }
 
 .dashboard-header h2 {
@@ -899,5 +901,9 @@ label {
   justify-content: center;
   display: flex;
   gap: 10px;
+}
+.horizontal {
+  margin-top: 20px;
+  border: 1px solid #e2e8f0;;
 }
 </style>
