@@ -30,29 +30,20 @@ const router = createRouter({
 })
 
 /* 🔐 ROUTE GUARD */
-router.beforeEach((to, from, next) => {
-
-  // Check token instead of just messAdmin flag
+/* 🔐 ROUTE GUARD */
+router.beforeEach((to) => {
   const token = localStorage.getItem('token')
   const isLoggedIn = !!token
 
   // If route requires authentication
-  if (to.meta.requiresAuth) {
-    if (!isLoggedIn) {
-      next({ name: 'Login' })
-    } else {
-      next()
-    }
-    return
+  if (to.meta.requiresAuth && !isLoggedIn) {
+    return { name: 'Login' }
   }
 
   // If already logged in and tries to open login page
   if (to.name === 'Login' && isLoggedIn) {
-    next({ name: 'AdminDashboard' })
-    return
+    return { name: 'AdminDashboard' }
   }
-
-  next()
 })
 
 export default router

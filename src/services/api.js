@@ -84,4 +84,12 @@ export const getVisitsApi = () => {
     }
   })
 }
+// GET MENU FOR CUSTOMER (QR SCAN)
+export const getCustomerMealsApi = (userId) => {
+  return api.get(`/meals-customers`, {
+    params: {
+      user_id: userId
+    }
+  })
+}
 export default api
