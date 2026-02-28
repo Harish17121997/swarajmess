@@ -2,14 +2,19 @@
   <div class="menu-wrapper">
     <div class="menu-card">
 
-      <!-- Header -->
+      <!-- HEADER -->
       <div class="header">
         <h2>Today's Menu</h2>
         <p class="date">{{ today }}</p>
       </div>
 
-      <!-- If No Menu -->
-      <div v-if="!menu" class="no-menu">
+      <!-- Loading -->
+      <div v-if="loading" class="state-text">
+        Loading menu...
+      </div>
+
+      <!-- No Data -->
+      <div v-else-if="!menu" class="state-text error">
         No Menu Available Today
       </div>
 
@@ -21,7 +26,7 @@
         </div>
 
         <div class="time">
-          ⏰ {{ menu.start }} - {{ menu.end }}
+          ⏰ {{ menu.start_time }} - {{ menu.end_time }}
         </div>
 
         <div class="items">
@@ -30,7 +35,7 @@
             v-for="(item, index) in menu.items"
             :key="index"
           >
-            🍽 {{ item }}
+            {{ item }}
           </div>
         </div>
 
@@ -42,23 +47,19 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+// import { getMyVisitsApi } from '@/services/api'
 
 const today = ref('')
 const menu = ref(null)
+const loading = ref(true)
 
-onMounted(() => {
-  const d = new Date()
-  today.value = d.toDateString()
 
-  const savedMenu = localStorage.getItem('messMenu')
-
-  if (savedMenu) {
-    const parsed = JSON.parse(savedMenu)
-
-    // Show only if date matches today
-    if (parsed.date === today.value) {
-      menu.value = parsed
-    }
+onMounted(async () => {
+  try {
+    // const response = await getMyVisitsApi({ my_visits})
+    menu.value = response.data
+  } catch (err) {
+    console.error(err)
   }
 })
 </script>

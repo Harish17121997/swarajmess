@@ -77,4 +77,11 @@ export const softDeleteMealApi = (id) => {
   })
 }
 
+export const getVisitsApi = () => {
+  return api.get('/dashboard/my-visits', {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
 export default api

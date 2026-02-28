@@ -9,6 +9,7 @@
         </div>
         <button class="logout-btn" @click="logout">Logout</button>
       </div>
+
       <div class="mess-toggle">
         <span class="status-text">
           Mess Status :
@@ -69,6 +70,37 @@
       <p v-if="success" class="success-msg">
         ✔ Menu Saved Successfully
       </p>
+      <div class="dashboard-container">
+        <div class="dashboard-header">
+          <h2>Dashboard</h2>
+          <p class="sub-text">Visitor Analytics Overview</p>
+        </div>
+
+        <!-- Top Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <p>Total Visitors</p>
+            <h3>{{ stats.total_visits }}</h3>
+          </div>
+
+          <div class="stat-card">
+            <p>Today's Visitors</p>
+            <h3>{{ stats.today_visits }}</h3>
+          </div>
+        </div>
+
+        <!-- Monthly Breakdown -->
+        <div class="monthly-section">
+          <h4>Monthly Overview</h4>
+
+          <div class="month-grid">
+            <div v-for="month in monthlyStats" :key="month.name" class="month-card">
+              <span>{{ month.name }}</span>
+              <strong>{{ month.count }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- ================= CURRENT MEALS LIST ================= -->
       <div v-if="messOpen" class="current-section">
@@ -116,7 +148,7 @@ import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
 import {
   addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi,
-  getCurrentMealsApi, softDeleteMealApi
+  getCurrentMealsApi, softDeleteMealApi, getVisitsApi
 } from '@/services/api'
 import { useToast } from "vue-toastification"
 
@@ -133,6 +165,25 @@ const addingMeal = ref(false)
 const mealType = ref(null)
 const currentMeals = ref([])
 const currentLoading = ref(false)
+const stats = ref({
+  total_visits: 0,
+  today_visits: 0,
+  month_visits: 0
+})
+const monthlyStats = ref([
+  { name: "Jan", count: 30 },
+  { name: "Feb", count: 110 },
+  { name: "Mar", count: 40 },
+  { name: "Apr", count: 50 },
+  { name: "May", count: 0 },
+  { name: "Jun", count: 0 },
+  { name: "Jul", count: 0 },
+  { name: "Aug", count: 0 },
+  { name: "Sep", count: 0 },
+  { name: "Oct", count: 0 },
+  { name: "Nov", count: 0 },
+  { name: "Dec", count: 0 }
+])
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -314,10 +365,19 @@ async function deleteCurrentMeal(id) {
     toast.error("Failed to delete meal")
   }
 }
+async function fetchVisits() {
+  try {
+    const res = await getVisitsApi()
+    stats.value = res.data
+  } catch (error) {
+    toast.error("Failed to fetch visitor stats")
+  }
+}
 onMounted(() => {
   fetchMessStatus()
   fetchMeals()
   fetchCurrentMeals()
+  fetchVisits()
 })
 </script>
 <style scoped>
@@ -377,7 +437,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 22px;
+  margin-bottom: 10px;
 }
 
 .header h2 {
@@ -615,6 +675,141 @@ label {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Header */
+.dashboard-header {
+  margin-bottom: 16px;
+}
+
+.dashboard-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.sub-text {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* Stat Card */
+.stat-card {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-card p {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.stat-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.sub-text {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* ===== MONTHLY SECTION ===== */
+.monthly-section {
+  margin-top: 30px;
+}
+
+.monthly-section h4 {
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+/* Month Grid */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.month-card {
+  padding: 10px;
+  background: #f9fafb;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+}
+
+.month-card span {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.month-card strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ================= MOBILE VIEW ================= */
+@media (max-width: 600px) {
+
+  .dashboard-container {
+    padding: 0px 14px 0px 14px;
+  }
+
+  .sub-text {
+    font-size: 11px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-card h3 {
+    font-size: 18px;
+  }
+
+  /* Make month grid scrollable */
+  .month-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+  }
+
+  .month-card {
+    min-width: 70px;
+    padding: 8px;
+  }
+
+  .month-card strong {
+    font-size: 13px;
   }
 }
 
