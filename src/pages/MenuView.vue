@@ -4,7 +4,7 @@
 
       <!-- Welcome Header -->
       <div class="header">
-        <h1>Welcome to Swaraj Mess</h1>
+        <h1>Welcome to <span class="mess-name">{{ messName }} </span> Mess</h1>
         <p class="subtitle">Your meals for today</p>
         <p class="date">{{ today }}</p>
       </div>
@@ -68,6 +68,7 @@ import { getCustomerMealsApi } from '@/services/api'
 
 const meals = ref([])
 const loading = ref(true)
+const messName = ref('')
 const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })
 
 onMounted(async () => {
@@ -79,7 +80,9 @@ onMounted(async () => {
       return
     }
     const response = await getCustomerMealsApi(userId)
-    meals.value = response.data || []
+    console.log(response)
+    meals.value = response.data?.meals || []
+    messName.value = response.data?.user_name
   } catch (err) {
     console.error(err)
   } finally {
@@ -88,13 +91,16 @@ onMounted(async () => {
 })
 
 const groupedMeals = computed(() => ({
-  breakfast: meals.value.filter(m => m.meal_flag === 0),
-  lunch: meals.value.filter(m => m.meal_flag === 1),
-  dinner: meals.value.filter(m => m.meal_flag === 2)
+  breakfast: meals.value?.filter(m => m.meal_flag === 0),
+  lunch: meals.value?.filter(m => m.meal_flag === 1),
+  dinner: meals.value?.filter(m => m.meal_flag === 2)
 }))
 </script>
 
 <style scoped>
+.mess-name{
+  text-transform: capitalize;
+}
 /* Page background */
 .menu-wrapper {
   min-height: 100vh;
