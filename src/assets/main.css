@@ -1,35 +1,138 @@
-@import './base.css';
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+/* Align selected text properly */
+.multiselect__single {
+  padding-left: 12px;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+/* Fix dropdown height & arrow alignment */
+.multiselect__tags {
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  padding: 0 40px 0 12px; /* space for arrow */
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+/* Center arrow perfectly */
+.multiselect__select {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  height: 100%;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+/* Fix highlight color */
+.multiselect__option--highlight {
+  background: #e0f2fe !important;
+  color: #0369a1;
+}
+.multiselect__option {
+  padding: 10px 14px;
+  font-size: 14px;
+}
+/* Control dropdown max height */
+.multiselect__content-wrapper {
+  max-height: 200px;   /* adjust 180–240px as needed */
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+/* Proper spacing for option row */
+.option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 6px 4px;
+}
+
+/* Label should expand */
+.option-row span {
+  flex: 1;
+}
+
+/* Delete icon styling */
+.option-delete {
+  font-size: 14px;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: 0.2s ease;
+}
+
+.option-delete:hover {
+  background: #fee2e2;
+}
+.multiselect__select::before {
+  position: static !important;
+}
+/* Placeholder styling */
+.multiselect__placeholder {
+  color: #94a3b8; /* soft gray */
+  font-weight: 400;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Keep placeholder color even when focused */
+.multiselect--active .multiselect__placeholder {
+  color: #94a3b8;
+}
+.multiselect__input {
+  background : #f9fafb !important;
+  padding-top: 6px;
+}
+/* External delete button */
+.delete-btn-color {
+  font-size: 16px;
+  color: #ef4444;
+}
+@media (max-width: 768px) {
+  .multiselect__content-wrapper {
+    max-height: 220px;
   }
+}
+.multiselect__option--tag {
+  background: #f8fafc !important;
+  color: #2563eb !important;
+  font-weight: 500;
+  padding: 10px 14px;
+}
+
+.multiselect__option--tag::before {
+  content: "➕ Add ";
+  font-weight: 600;
+}
+/* Force override tag create option */
+.multiselect .multiselect__content .multiselect__option--tag {
+  background: #f0f9ff !important;
+  color: #2563eb !important;
+  font-weight: 500 !important;
+  padding: 10px 14px !important;
+  border-radius: 8px;
+}
+
+/* Remove default green highlight */
+.multiselect .multiselect__content .multiselect__option--tag.multiselect__option--highlight {
+  background: #e0f2fe !important;
+  color: #1d4ed8 !important;
+}
+
+/* Replace text properly */
+.multiselect .multiselect__option--tag span::before {
+  content: "➕ Add ";
+  font-weight: 600;
 }

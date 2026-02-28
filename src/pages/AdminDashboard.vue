@@ -23,14 +23,13 @@
       </div>
 
       <!-- MEAL TYPE -->
+      <!-- MEAL TYPE -->
       <div class="form-group">
         <label>Meal Type</label>
-        <select v-model="mealType" class="input" :disabled="!messOpen">
-          <option disabled value="">Select Meal</option>
-          <option>Breakfast</option>
-          <option>Lunch</option>
-          <option>Dinner</option>
-        </select>
+
+        <Multiselect v-model="mealType" :options="mealOptions" label="label" track-by="value" :multiple="false"
+          :close-on-select="true" :show-labels="false" placeholder="Select Meal Type" class="multi"
+          :disabled="!messOpen || mealsLoading" />
       </div>
 
       <!-- MENU SECTION -->
@@ -39,9 +38,14 @@
 
         <div class="menu-row" v-for="(row, index) in rows" :key="index">
           <Multiselect v-model="row.selected" :options="allItems" label="label" track-by="value" :multiple="false"
-            :taggable="false" :close-on-select="true" :show-labels="false" placeholder="Select food item" class="multi"
-            :disabled="!messOpen">
+            :taggable="true" :close-on-select="true" :show-labels="false" placeholder="Select food item" class="multi"
+            :disabled="!messOpen" @tag="addNewMeal">
 
+            <template #noResult="{ search }">
+              <div class="add-new-option" @click="addNewMeal(search)">
+                ➕ Add "{{ search }}"
+              </div>
+            </template>
             <template #option="{ option }">
               <div class="option-row">
                 <span>{{ option.label }}</span>
@@ -59,6 +63,7 @@
 
       <!-- SAVE -->
       <button class="save-btn" @click="saveMenu" :disabled="loading || !messOpen">
+        <span v-if="loading" class="spinner"></span>
         {{ loading ? 'Saving...' : 'Save Menu' }}
       </button>
       <p v-if="success" class="success-msg">
@@ -68,13 +73,14 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
 import { addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi } from '@/services/api'
+import { useToast } from "vue-toastification"
 
+const toast = useToast()
 const router = useRouter()
 const messOpen = ref(true)
 const statusLoading = ref(false)
@@ -82,6 +88,9 @@ const success = ref(false)
 const loading = ref(false)
 const rows = ref([{ selected: null }])
 const allItems = ref([])
+const mealsLoading = ref(false)
+const addingMeal = ref(false)
+const mealType = ref(null)
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -89,16 +98,11 @@ const today = new Date().toLocaleDateString('en-IN', {
   month: 'long',
   year: 'numeric'
 })
-
-/* ---------- MEAL TYPE ---------- */
-const mealType = ref('')
-
-/* ---------- MEAL FLAG MAPPING ---------- */
-const mealMap = {
-  Breakfast: 0,
-  Lunch: 1,
-  Dinner: 2
-}
+const mealOptions = [
+  { label: 'Breakfast', value: 0 },
+  { label: 'Lunch', value: 1 },
+  { label: 'Dinner', value: 2 }
+]
 /* ---------- MULTISELECT ROWS ---------- */
 function addRow() {
   rows.value.push({ selected: [] })
@@ -115,9 +119,40 @@ async function deleteMeal(option) {
         row.selected = null
       }
     })
-
+    toast.warning("Meal deleted successfully")
   } catch (error) {
-    alert('Failed to delete meal')
+    toast.error("Failed to delete meal")
+  }
+}
+async function addNewMeal(searchText) {
+  const trimmed = searchText?.trim()
+  if (!trimmed) return
+  const exists = allItems.value.find(
+    item => item.label.toLowerCase() === trimmed.toLowerCase()
+  )
+  if (exists) {
+    toast.info("Meal already exists")
+    return
+  }
+  addingMeal.value = true
+  try {
+    await addMealApi({
+      meal_flag: mealType.value.value ?? 0,
+      meal_name: trimmed
+    })
+
+    toast.success("Meal added successfully")
+    await fetchMeals()
+    const created = allItems.value.find(
+      item => item.label.toLowerCase() === trimmed.toLowerCase()
+    )
+    if (created) {
+      rows.value[rows.value.length - 1].selected = created
+    }
+  } catch (error) {
+    toast.error("Failed to add meal")
+  } finally {
+    addingMeal.value = false
   }
 }
 
@@ -127,14 +162,17 @@ function logout() {
 }
 
 async function fetchMeals() {
+  mealsLoading.value = true
   try {
     const res = await getMealsApi()
     allItems.value = res.data.map(meal => ({
       label: meal.meal_name,
-      value: meal.id 
+      value: meal.id
     }))
   } catch (error) {
-    console.log('Failed to fetch meals')
+    toast.error("Failed to fetch meals")
+  } finally {
+    mealsLoading.value = false
   }
 }
 
@@ -155,7 +193,7 @@ async function saveMessStatus() {
     await updateUserStatusApi(messOpen.value ? 1 : 0)
   } catch (error) {
     messOpen.value = previousValue
-    alert('Failed to update mess status')
+    toast.error('Failed to update mess status')
   } finally {
     statusLoading.value = false
   }
@@ -163,42 +201,52 @@ async function saveMessStatus() {
 
 async function saveMenu() {
   if (!mealType.value) {
-    alert('Please select meal type')
+    toast.error('Please select meal type')
     return
   }
-  let items = []
-  rows.value.forEach(row => {
-    if (row.selected) {
-      items.push(row.selected)
-    }
-  })
-  items = [...new Set(items)]
+  const selectedItems = rows.value
+    .map(row => row.selected)
+    .filter(Boolean)
 
-  if (items.length === 0) {
-    alert('Select at least one menu item')
+  if (selectedItems.length === 0) {
+    toast.error('Please select at least one item')
     return
   }
   loading.value = true
   success.value = false
 
   try {
-    await addMealApi({ meal_flag: mealMap[mealType.value], meal_name: items })
+    await Promise.all(
+      selectedItems.map(item =>
+        addMealApi({
+          meal_flag: mealType.value.value,
+          meal_name: item.label
+        })
+      )
+    )
+    toast.success("Menu saved successfully")
     success.value = true
     rows.value = [{ selected: null }]
-    mealType.value = ''
+    mealType.value = null
 
   } catch (error) {
-    alert(error.response?.data?.message || 'Failed to save menu')
+    toast.error('Failed to save menu')
   } finally {
     loading.value = false
   }
+}
+const removeRow = index => {
+  if (rows.value.length === 1) {
+    toast.warning("At least one item is required")
+    return
+  }
+  rows.value.splice(index, 1)
 }
 onMounted(() => {
   fetchMessStatus()
   fetchMeals()
 })
 </script>
-
 <style scoped>
 .admin-page {
   min-height: 100vh;
@@ -462,7 +510,6 @@ label {
 /* ============================= */
 /* SAVE BUTTON */
 /* ============================= */
-
 .save-btn {
   width: 100%;
   height: 54px;
@@ -490,61 +537,16 @@ label {
   font-weight: 600;
 }
 
-/* ============================= */
-/* MULTISELECT IMPROVEMENTS */
-/* ============================= */
-:deep(.multiselect__single) {
-  padding-left: 5px;
-  margin-bottom: 0px;
-  align-items: center;
-  text-align: center;
-  padding-top: 6px;
-  background: #f9fafb;
-}
 
-:deep(.multiselect__tags) {
-  min-height: 48px;
-  border-radius: 14px;
-  border: 1px solid #e2e8f0;
-  background: #f9fafb;
-}
-
-:deep(.multiselect__placeholder) {
-  padding-top: 5px;
-}
-:deep(.option-row) {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-:deep(.option-delete) {
-  font-size: 14px;
-  color: #ef4444;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-}
-
-:deep(.option-delete:hover) {
-  background: #fee2e2;
-}
-
-:deep(.multiselect__option--selected) {
-  background: #87f578;
-  color: rgb(14, 13, 13);
-}
-
-.delete-btn-color {
-  font-size: 16px;
-  color: #ef4444;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============================= */
 /* MOBILE OPTIMIZATION */
 /* ============================= */
-
 @media (max-width: 520px) {
 
   .admin-page {

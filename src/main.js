@@ -3,7 +3,13 @@ import App from './App.vue'
 import router from './router'
 import 'vue-multiselect/dist/vue-multiselect.css'
 import 'primeicons/primeicons.css'
-
-createApp(App)
-  .use(router)
-  .mount('#app')
+import './assets/main.css'
+import Toast from "vue-toastification"
+import "vue-toastification/dist/index.css"
+const app = createApp(App)
+app.use(router)
+app.use(Toast, {
+  position: "top-right",
+  timeout: 3000
+})
+app.mount('#app')
