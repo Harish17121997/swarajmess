@@ -59,4 +59,22 @@ export const deleteMealApi = (mealId) => {
   })
 }
 
+// GET CURRENT MEALS
+export const getCurrentMealsApi = () => {
+  return api.get('/current-meals', {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
+
+// SOFT DELETE CURRENT MEAL
+export const softDeleteMealApi = (id) => {
+  return api.delete(`/meals/${id}?soft_delete=1`, {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
+
 export default api

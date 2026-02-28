@@ -70,14 +70,54 @@
         ✔ Menu Saved Successfully
       </p>
 
+      <!-- ================= CURRENT MEALS LIST ================= -->
+      <div v-if="messOpen" class="current-section">
+        <h3> Today's Menu <p class="date">{{ today }}</p>
+        </h3>
+
+        <div v-if="currentLoading" class="loading-text">
+          Loading meals...
+        </div>
+
+        <!-- BREAKFAST -->
+        <div v-if="groupedMeals.breakfast.length" class="meal-block">
+          <h4 class="breakfast">🌅 Breakfast</h4>
+          <div class="meal-item" v-for="meal in groupedMeals.breakfast" :key="meal.id">
+            <span>{{ meal.meal_name }}</span>
+            <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+          </div>
+        </div>
+
+        <!-- LUNCH -->
+        <div v-if="groupedMeals.lunch.length" class="meal-block">
+          <h4 class="breakfast"> 🍛 Lunch</h4>
+          <div class="meal-item" v-for="meal in groupedMeals.lunch" :key="meal.id">
+            <span>{{ meal.meal_name }}</span>
+            <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+          </div>
+        </div>
+
+        <!-- DINNER -->
+        <div v-if="groupedMeals.dinner.length" class="meal-block">
+          <h4 class="breakfast">🌙 Dinner</h4>
+          <div class="meal-item" v-for="meal in groupedMeals.dinner" :key="meal.id">
+            <span>{{ meal.meal_name }}</span>
+            <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
-import { addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi } from '@/services/api'
+import {
+  addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi,
+  getCurrentMealsApi, softDeleteMealApi
+} from '@/services/api'
 import { useToast } from "vue-toastification"
 
 const toast = useToast()
@@ -91,6 +131,8 @@ const allItems = ref([])
 const mealsLoading = ref(false)
 const addingMeal = ref(false)
 const mealType = ref(null)
+const currentMeals = ref([])
+const currentLoading = ref(false)
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -108,6 +150,14 @@ function addRow() {
   rows.value.push({ selected: [] })
 }
 
+const groupedMeals = computed(() => {
+  return {
+    breakfast: currentMeals.value.filter(m => m.meal_flag === 0),
+    lunch: currentMeals.value.filter(m => m.meal_flag === 1),
+    dinner: currentMeals.value.filter(m => m.meal_flag === 2)
+  }
+})
+
 async function deleteMeal(option) {
   try {
     await deleteMealApi(option.value)
@@ -124,6 +174,7 @@ async function deleteMeal(option) {
     toast.error("Failed to delete meal")
   }
 }
+
 async function addNewMeal(searchText) {
   const trimmed = searchText?.trim()
   if (!trimmed) return
@@ -242,9 +293,31 @@ const removeRow = index => {
   }
   rows.value.splice(index, 1)
 }
+
+async function fetchCurrentMeals() {
+  currentLoading.value = true
+  try {
+    const res = await getCurrentMealsApi()
+    currentMeals.value = res.data
+  } catch (error) {
+    toast.error("Failed to fetch current meals")
+  } finally {
+    currentLoading.value = false
+  }
+}
+async function deleteCurrentMeal(id) {
+  try {
+    await softDeleteMealApi(id)
+    toast.success("Meal removed")
+    fetchCurrentMeals()
+  } catch (error) {
+    toast.error("Failed to delete meal")
+  }
+}
 onMounted(() => {
   fetchMessStatus()
   fetchMeals()
+  fetchCurrentMeals()
 })
 </script>
 <style scoped>
@@ -275,6 +348,7 @@ onMounted(() => {
   border-radius: 22px;
   padding: 28px 24px;
   border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2), 4px 0 3px 0 rgba(0, 0, 0, 0.14), 1px 0 10px 0 rgba(0, 0, 0, 0.12);
 
   box-shadow:
     0 20px 40px rgba(15, 23, 42, .08),
@@ -557,6 +631,7 @@ label {
   .admin-card {
     padding: 20px 16px;
     border-radius: 18px;
+    box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2), 4px 0 3px 0 rgba(0, 0, 0, 0.14), 1px 0 10px 0 rgba(0, 0, 0, 0.12);
   }
 
   .header h2 {
@@ -566,5 +641,68 @@ label {
   .save-btn {
     height: 50px;
   }
+}
+
+/* ================= CURRENT MEALS ================= */
+
+.current-section {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.current-section h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+.meal-block {
+  margin-bottom: 16px;
+}
+
+.meal-block h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 8px;
+}
+
+.meal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #e9f3ff;
+  margin-bottom: 6px;
+  transition: .2s ease;
+}
+
+.meal-item:hover {
+  background: #e0f2fe;
+}
+
+.delete-icon {
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-icon:hover {
+  transform: scale(1.1);
+}
+
+.loading-text {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.breakfast {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  gap: 10px;
 }
 </style>
