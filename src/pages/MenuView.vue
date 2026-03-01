@@ -8,6 +8,20 @@
         <p class="subtitle">Your meals for today</p>
         <p class="date">{{ today }}</p>
       </div>
+      <div v-if="imageUrls.length" class="carousel">
+  <div 
+    class="carousel-track"
+    :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
+  >
+    <div 
+      class="carousel-slide"
+      v-for="(img, i) in imageUrls" 
+      :key="i"
+    >
+      <img :src="img" class="carousel-img" />
+    </div>
+  </div>
+</div>
 
       <!-- Loading -->
       <div v-if="loading" class="state-text">
@@ -28,7 +42,12 @@
           </div>
           <div class="items">
             <div class="item-card" v-for="item in groupedMeals.breakfast" :key="item.id">
-              {{ item.meal_name }}
+              <div class="item-row">
+                  <span class="item-name">{{ item.meal_name }}</span>
+                  <span v-if="item.meal_price !== null" class="item-price">
+                    ₹{{ Number(item.meal_price) }}
+                  </span>
+                </div>
             </div>
           </div>
         </div>
@@ -40,7 +59,12 @@
           </div>
           <div class="items">
             <div class="item-card" v-for="item in groupedMeals.lunch" :key="item.id">
-              {{ item.meal_name }}
+              <div class="item-row">
+                  <span class="item-name">{{ item.meal_name }}</span>
+                  <span v-if="item.meal_price !== null" class="item-price">
+                    ₹{{ Number(item.meal_price) }}
+                  </span>
+                </div>
             </div>
           </div>
         </div>
@@ -52,7 +76,12 @@
           </div>
           <div class="items">
             <div class="item-card" v-for="item in groupedMeals.dinner" :key="item.id">
-              {{ item.meal_name }}
+                <div class="item-row">
+                  <span class="item-name">{{ item.meal_name }}</span>
+                  <span v-if="item.meal_price !== null" class="item-price">
+                    ₹{{ Number(item.meal_price) }}
+                  </span>
+                </div>
             </div>
           </div>
         </div>
@@ -63,12 +92,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue'
 import { getCustomerMealsApi } from '@/services/api'
 
 const meals = ref([])
 const loading = ref(true)
 const messName = ref('')
+const imageUrls = ref([
+  "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1490645935967-10de6ba17061"])
+const currentSlide = ref(0)
+let interval = null
 const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })
 
 onMounted(async () => {
@@ -80,14 +115,23 @@ onMounted(async () => {
       return
     }
     const response = await getCustomerMealsApi(userId)
-    console.log(response)
     meals.value = response.data?.meals || []
     messName.value = response.data?.user_name
+    // imageUrls.value = response.data?.image_urls || []
   } catch (err) {
     console.error(err)
   } finally {
     loading.value = false
   }
+  if (imageUrls.value.length > 1) {
+    interval = setInterval(() => {
+      currentSlide.value =
+        (currentSlide.value + 1) % imageUrls.value.length
+    }, 3000) // change every 3 seconds
+  }
+})
+onBeforeUnmount(() => {
+  clearInterval(interval)
 })
 
 const groupedMeals = computed(() => ({
@@ -219,6 +263,67 @@ const groupedMeals = computed(() => ({
   font-weight: 700;
 }
 
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.item-name {
+  font-weight: 600;
+  font-size: 15px;
+  flex: 1;
+  text-transform: capitalize;
+}
+
+.item-price {
+  font-weight: 700;
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.2);
+}
+.image-slider {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.slider-img {
+  width: 100%;
+  max-width: 280px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+.carousel {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  position: relative;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.6s ease-in-out;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;   /* VERY IMPORTANT */
+  max-width: 100%;  /* Prevent overflow */
+}
+
+.carousel-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+.carousel-track {
+  display: flex;
+  width: 100%;
+}
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(15px); }
