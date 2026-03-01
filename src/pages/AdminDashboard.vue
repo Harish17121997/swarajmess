@@ -18,12 +18,17 @@
         <!-- Top Stats -->
         <div class="stats-grid">
           <div class="stat-card">
-            <p>Total Visitors</p>
+            <p>Total</p>
             <h3>{{ stats.total_visits }}</h3>
           </div>
 
           <div class="stat-card">
-            <p>Today's Visitors</p>
+            <p>Monthly</p>
+            <h3>{{ stats.month_visits }}</h3>
+          </div>
+
+          <div class="stat-card">
+            <p>Today's</p>
             <h3>{{ stats.today_visits }}</h3>
           </div>
         </div>
@@ -40,7 +45,7 @@
           </div>
         </div>
       </div>
-      <hr class="horizontal"/>
+      <hr class="horizontal" />
 
       <div class="mess-toggle">
         <span class="status-text">
@@ -102,8 +107,8 @@
       <p v-if="success" class="success-msg">
         ✔ Menu Saved Successfully
       </p>
- 
-      
+
+
 
       <!-- ================= CURRENT MEALS LIST ================= -->
       <div v-if="messOpen" class="current-section">
@@ -174,20 +179,8 @@ const stats = ref({
   today_visits: 0,
   month_visits: 0
 })
-const monthlyStats = ref([
-  { name: "Jan", count: 30 },
-  { name: "Feb", count: 110 },
-  { name: "Mar", count: 40 },
-  { name: "Apr", count: 50 },
-  { name: "May", count: 0 },
-  { name: "Jun", count: 0 },
-  { name: "Jul", count: 0 },
-  { name: "Aug", count: 0 },
-  { name: "Sep", count: 0 },
-  { name: "Oct", count: 0 },
-  { name: "Nov", count: 0 },
-  { name: "Dec", count: 0 }
-])
+const monthlyStats = ref([])
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -335,7 +328,7 @@ async function saveMenu() {
     success.value = true
     rows.value = [{ selected: null }]
     mealType.value = null
-
+    fetchMeals()
   } catch (error) {
     toast.error('Failed to save menu')
   } finally {
@@ -373,11 +366,20 @@ async function deleteCurrentMeal(id) {
 async function fetchVisits() {
   try {
     const res = await getVisitsApi()
-    stats.value = res.data
+    // update main stats
+    stats.value.total_visits = res.data.total_visits
+    stats.value.today_visits = res.data.today_visits
+    stats.value.month_visits = res.data.current_month_visits
+    // map API monthly stats to names
+    monthlyStats.value = res.data.monthly_stats.map(item => ({
+      name: monthNames[item.month - 1],
+      count: item.monthly_visits
+    }))
   } catch (error) {
     toast.error("Failed to fetch visitor stats")
   }
 }
+
 onMounted(() => {
   fetchMessStatus()
   fetchMeals()
@@ -400,7 +402,8 @@ onMounted(() => {
 
   font-family: 'Inter', sans-serif;
 }
-.mess-name{
+
+.mess-name {
   text-transform: capitalize;
 }
 
@@ -698,10 +701,12 @@ label {
   margin-bottom: 4px;
   margin-top: 0px
 }
+
 .dashboard-title {
   font-size: 16px;
   color: #f34500;
 }
+
 .sub-text {
   font-size: 13px;
   color: #6b7280;
@@ -710,7 +715,7 @@ label {
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
 
@@ -797,7 +802,8 @@ label {
   }
 
   .stats-grid {
-    grid-template-columns: 1fr 1fr;
+    /* grid-template-columns: 1fr 1fr; */
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
 
@@ -916,8 +922,10 @@ label {
   display: flex;
   gap: 10px;
 }
+
 .horizontal {
   margin: 20px 0px;
-  border: 1px solid #e2e8f0;;
+  border: 1px solid #e2e8f0;
+  ;
 }
 </style>
