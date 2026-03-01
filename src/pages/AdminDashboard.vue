@@ -4,7 +4,7 @@
       <!-- HEADER -->
       <div class="header">
         <div>
-          <h2><span class="mess-name">{{ messName }} </span> Mess Admin</h2>
+          <h2><span class="mess-name">{{ messName }} </span> Admin</h2>
           <p class="date">{{ today }}</p>
         </div>
         <button class="logout-btn" @click="logout">Logout</button>
@@ -61,7 +61,6 @@
       </div>
 
       <!-- MEAL TYPE -->
-      <!-- MEAL TYPE -->
       <div class="form-group">
         <label>Meal Type</label>
 
@@ -72,18 +71,21 @@
 
       <!-- MENU SECTION -->
       <div class="menu-section">
-        <label>Menu Items</label>
+        <div class="menu-header">
+          <label>Menu Items</label>
+
+          <!-- Toggle Price Input -->
+          <div class="price-toggle">
+            <input type="checkbox" id="showPrice" v-model="showPrice" />
+            <label for="showPrice">Show Price</label>
+          </div>
+        </div>
+        <!-- <label>Menu Items</label> -->
 
         <div class="menu-row" v-for="(row, index) in rows" :key="index">
           <Multiselect v-model="row.selected" :options="allItems" label="label" track-by="value" :multiple="false"
-            :taggable="true" :close-on-select="true" :show-labels="false" placeholder="Select food item" class="multi"
+            :taggable="true" :tag-placeholder="''" :close-on-select="true" :show-labels="false" placeholder="Select food item" class="multi"
             :disabled="!messOpen" @tag="addNewMeal">
-
-            <template #noResult="{ search }">
-              <div class="add-new-option" @click="addNewMeal(search)">
-                ➕ Add "{{ search }}"
-              </div>
-            </template>
             <template #option="{ option }">
               <div class="option-row">
                 <span>{{ option.label }}</span>
@@ -92,6 +94,8 @@
             </template>
 
           </Multiselect>
+          <input v-if="showPrice" type="number" v-model="row.price" placeholder="Enter price" min="0"
+            class="price-input" />
           <button class="remove-btn" @click="removeRow(index)"> <i class="pi pi-trash delete-btn-color"></i> </button>
         </div>
         <button class="add-btn" @click="addRow">
@@ -123,8 +127,14 @@
         <div v-if="groupedMeals.breakfast.length" class="meal-block">
           <h4 class="breakfast">🌅 Breakfast</h4>
           <div class="meal-item" v-for="meal in groupedMeals.breakfast" :key="meal.id">
-            <span>{{ meal.meal_name }}</span>
-            <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+            <div class="meal-left">
+              <span class="meal-name">{{ meal.meal_name }}</span>
+            </div>
+
+            <div class="meal-right">
+              <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
+              <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+            </div>
           </div>
         </div>
 
@@ -132,8 +142,14 @@
         <div v-if="groupedMeals.lunch.length" class="meal-block">
           <h4 class="breakfast"> 🍛 Lunch</h4>
           <div class="meal-item" v-for="meal in groupedMeals.lunch" :key="meal.id">
-            <span>{{ meal.meal_name }}</span>
-            <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+            <div class="meal-left">
+              <span class="meal-name">{{ meal.meal_name }}</span>
+            </div>
+
+            <div class="meal-right">
+              <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price ?? 0 }}</span>
+              <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+            </div>
           </div>
         </div>
 
@@ -141,8 +157,14 @@
         <div v-if="groupedMeals.dinner.length" class="meal-block">
           <h4 class="breakfast">🌙 Dinner</h4>
           <div class="meal-item" v-for="meal in groupedMeals.dinner" :key="meal.id">
-            <span>{{ meal.meal_name }}</span>
-            <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+            <div class="meal-left">
+              <span class="meal-name">{{ meal.meal_name }}</span>
+            </div>
+
+            <div class="meal-right">
+              <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
+              <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+            </div>
           </div>
         </div>
       </div>
@@ -166,13 +188,14 @@ const messOpen = ref(true)
 const statusLoading = ref(false)
 const success = ref(false)
 const loading = ref(false)
-const rows = ref([{ selected: null }])
+const rows = ref([{ selected: null, price: null }])
 const allItems = ref([])
 const mealsLoading = ref(false)
 const addingMeal = ref(false)
 const mealType = ref(null)
 const currentMeals = ref([])
 const currentLoading = ref(false)
+const showPrice = ref(true)
 const messName = ref('')
 const stats = ref({
   total_visits: 0,
@@ -233,26 +256,14 @@ async function addNewMeal(searchText) {
     toast.info("Meal already exists")
     return
   }
-  addingMeal.value = true
-  try {
-    await addMealApi({
-      meal_flag: mealType.value.value ?? 0,
-      meal_name: trimmed
-    })
-
-    toast.success("Meal added successfully")
-    await fetchMeals()
-    const created = allItems.value.find(
-      item => item.label.toLowerCase() === trimmed.toLowerCase()
-    )
-    if (created) {
-      rows.value[rows.value.length - 1].selected = created
-    }
-  } catch (error) {
-    toast.error("Failed to add meal")
-  } finally {
-    addingMeal.value = false
+  // ✅ Create temporary local item
+  const tempItem = {
+    label: trimmed,
+    value: `temp_${Date.now()}`, // temporary ID
+    isNew: true
   }
+  allItems.value.push(tempItem)
+  rows.value[rows.value.length - 1].selected = tempItem
 }
 
 function logout() {
@@ -305,8 +316,12 @@ async function saveMenu() {
     return
   }
   const selectedItems = rows.value
-    .map(row => row.selected)
-    .filter(Boolean)
+    .filter(row => row.selected)
+    .map(row => ({
+      meal_flag: mealType.value.value,
+      meal_name: row.selected.label,
+      meal_price: row.price ?? 0  // default to 0 if not entered
+    }))
 
   if (selectedItems.length === 0) {
     toast.error('Please select at least one item')
@@ -314,21 +329,13 @@ async function saveMenu() {
   }
   loading.value = true
   success.value = false
-
   try {
-    await Promise.all(
-      selectedItems.map(item =>
-        addMealApi({
-          meal_flag: mealType.value.value,
-          meal_name: item.label
-        })
-      )
-    )
+    await addMealApi({ meals: selectedItems }) // send array in one call
     toast.success("Menu saved successfully")
     success.value = true
-    rows.value = [{ selected: null }]
+    rows.value = [{ selected: null, price: null }]
     mealType.value = null
-    fetchMeals()
+    fetchCurrentMeals()
   } catch (error) {
     toast.error('Failed to save menu')
   } finally {
@@ -609,7 +616,51 @@ label {
 }
 
 .multi {
+  flex: 2;
+}
+
+/* Menu header with toggle */
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.price-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.price-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #0ea5e9;
+  cursor: pointer;
+  margin: 0px 5px 5px 5px;
+}
+
+.price-input {
   flex: 1;
+  /* make input smaller but aligned */
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.price-input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
 }
 
 .remove-btn {
@@ -636,15 +687,72 @@ label {
 /* ============================= */
 
 .add-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
   width: 100%;
-  height: 48px;
+  height: 46px;
   border-radius: 14px;
   border: 2px dashed #cbd5e1;
   background: #f8fafc;
   font-weight: 600;
   color: #334155;
-  margin-top: 8px;
-  transition: all .2s ease;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+}
+
+/* ================= MOBILE OPTIMIZED MENU ROWS ================= */
+@media (max-width: 600px) {
+  .menu-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    /* select | price | remove */
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .multi {
+    width: 100%;
+    grid-column: 1 / 2;
+  }
+
+  .price-input {
+    width: 100%;
+    max-width: 80px;
+    /* compact input */
+    grid-column: 2 / 3;
+    text-align: right;
+  }
+
+  .remove-btn {
+    grid-column: 3 / 4;
+    justify-self: end;
+    width: 38px;
+    height: 38px;
+  }
+
+  /* Stack on very narrow screens */
+  @media (max-width: 380px) {
+    .menu-row {
+      grid-template-columns: 1fr;
+      /* stack everything */
+      gap: 6px;
+    }
+
+    .price-input,
+    .remove-btn {
+      width: 100%;
+      justify-self: stretch;
+    }
+  }
+}
+
+.price {
+  text-align: right;
+  font-weight: 600;
+  color: #334155;
 }
 
 .add-btn:hover {
@@ -899,16 +1007,41 @@ label {
 
 .meal-item:hover {
   background: #e0f2fe;
+  transform: translateY(-1px);
+}
+
+.meal-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meal-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.price {
+  font-weight: 600;
+  color: #059669;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
 }
 
 .delete-icon {
   color: #ef4444;
   cursor: pointer;
   font-size: 14px;
+  transition: 0.2s;
 }
 
 .delete-icon:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
 .loading-text {

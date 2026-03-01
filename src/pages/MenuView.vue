@@ -4,7 +4,7 @@
 
       <!-- Welcome Header -->
       <div class="header">
-        <h1>Welcome to <span class="mess-name">{{ messName }} </span> Mess</h1>
+        <h1>Welcome to <span class="mess-name">{{ messName }} </span></h1>
         <p class="subtitle">Your meals for today</p>
         <p class="date">{{ today }}</p>
       </div>
