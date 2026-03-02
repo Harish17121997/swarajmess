@@ -9,19 +9,12 @@
         <p class="date">{{ today }}</p>
       </div>
       <div v-if="imageUrls.length" class="carousel">
-  <div 
-    class="carousel-track"
-    :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
-  >
-    <div 
-      class="carousel-slide"
-      v-for="(img, i) in imageUrls" 
-      :key="i"
-    >
-      <img :src="img" class="carousel-img" />
-    </div>
-  </div>
-</div>
+        <div class="carousel-track" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
+          <div class="carousel-slide" v-for="(img, i) in imageUrls" :key="i">
+            <img :src="img" class="carousel-img" />
+          </div>
+        </div>
+      </div>
 
       <!-- Loading -->
       <div v-if="loading" class="state-text">
@@ -29,7 +22,8 @@
       </div>
 
       <!-- No Menu -->
-      <div v-else-if="!groupedMeals.breakfast.length && !groupedMeals.lunch.length && !groupedMeals.dinner.length" class="state-text error">
+      <div v-else-if="!groupedMeals.breakfast.length && !groupedMeals.lunch.length && !groupedMeals.dinner.length"
+        class="state-text error">
         🚫 No Menu Available Today
       </div>
 
@@ -43,11 +37,12 @@
           <div class="items">
             <div class="item-card" v-for="item in groupedMeals.breakfast" :key="item.id">
               <div class="item-row">
-                  <span class="item-name">{{ item.meal_name }}</span>
-                  <span v-if="item.meal_price !== null" class="item-price">
-                    ₹{{ Number(item.meal_price) }}
-                  </span>
-                </div>
+                <span class="item-name">{{ item.meal_name }}</span>
+                <span class="rate-icon" @click="openRating(item)">⭐</span>
+                <span v-if="item.meal_price !== null" class="item-price">
+                  ₹{{ Number(item.meal_price) }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -60,11 +55,12 @@
           <div class="items">
             <div class="item-card" v-for="item in groupedMeals.lunch" :key="item.id">
               <div class="item-row">
-                  <span class="item-name">{{ item.meal_name }}</span>
-                  <span v-if="item.meal_price !== null" class="item-price">
-                    ₹{{ Number(item.meal_price) }}
-                  </span>
-                </div>
+                <span class="item-name">{{ item.meal_name }}</span>
+                <span class="rate-icon" @click="openRating(item)">⭐</span>
+                <span v-if="item.meal_price !== null" class="item-price">
+                  ₹{{ Number(item.meal_price) }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -76,17 +72,35 @@
           </div>
           <div class="items">
             <div class="item-card" v-for="item in groupedMeals.dinner" :key="item.id">
-                <div class="item-row">
-                  <span class="item-name">{{ item.meal_name }}</span>
-                  <span v-if="item.meal_price !== null" class="item-price">
-                    ₹{{ Number(item.meal_price) }}
-                  </span>
-                </div>
+              <div class="item-row">
+                <span class="item-name">{{ item.meal_name }}</span>
+                <span class="rate-icon" @click="openRating(item)">⭐</span>
+                <span v-if="item.meal_price !== null" class="item-price">
+                  ₹{{ Number(item.meal_price) }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <div v-if="showRatingModal" class="rating-modal">
+    <div class="rating-box">
+      <h3>Rate {{ selectedItem?.meal_name }}</h3>
+      <div class="stars">
+        <span v-for="star in 5" :key="star" @click="selectedStars = star"
+          :class="['star', { active: star <= selectedStars }]">★
+        </span>
+      </div>
+      <button class="submit-btn" @click="submitItemRating">
+        Submit
+      </button>
+      <button class="close-btn" @click="showRatingModal = false">
+        Cancel
+      </button>
     </div>
   </div>
 </template>
@@ -105,6 +119,29 @@ const imageUrls = ref([
 const currentSlide = ref(0)
 let interval = null
 const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })
+
+const showRatingModal = ref(false)
+const selectedItem = ref(null)
+const selectedStars = ref(0)
+
+const openRating = (item) => {
+  selectedItem.value = item
+  selectedStars.value = 0
+  showRatingModal.value = true
+}
+
+const submitItemRating = async () => {
+  if (!selectedStars.value) return
+  try {
+    // await submitItemRatingApi({
+    //   meal_id: selectedItem.value.id,
+    //   rating: selectedStars.value
+    // })
+    showRatingModal.value = false
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 onMounted(async () => {
   try {
@@ -142,9 +179,16 @@ const groupedMeals = computed(() => ({
 </script>
 
 <style scoped>
-.mess-name{
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.mess-name {
   text-transform: capitalize;
 }
+
 /* Page background */
 .menu-wrapper {
   min-height: 100vh;
@@ -282,8 +326,9 @@ const groupedMeals = computed(() => ({
   font-size: 14px;
   padding: 4px 10px;
   border-radius: 20px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
+
 .image-slider {
   display: flex;
   gap: 10px;
@@ -297,6 +342,7 @@ const groupedMeals = computed(() => ({
   border-radius: 16px;
   object-fit: cover;
 }
+
 .carousel {
   width: 100%;
   overflow: hidden;
@@ -310,8 +356,10 @@ const groupedMeals = computed(() => ({
 }
 
 .carousel-slide {
-  flex: 0 0 100%;   /* VERY IMPORTANT */
-  max-width: 100%;  /* Prevent overflow */
+  flex: 0 0 100%;
+  /* VERY IMPORTANT */
+  max-width: 100%;
+  /* Prevent overflow */
 }
 
 .carousel-img {
@@ -320,14 +368,117 @@ const groupedMeals = computed(() => ({
   object-fit: cover;
   display: block;
 }
+
 .carousel-track {
   display: flex;
   width: 100%;
 }
+
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* rating */
+.right-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rate-icon {
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.rate-icon:hover {
+  transform: scale(1.2);
+}
+
+/* Modal */
+.rating-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.rating-box {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+}
+
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 28px;
+  margin: 15px 0;
+}
+
+.star {
+  cursor: pointer;
+  color: #d1d5db;
+  transition: 0.3s;
+}
+
+.star.active {
+  color: #fbbf24;
+}
+
+.close-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 8px 18px rgba(102, 126, 234, 0.35);
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 22px rgba(102, 126, 234, 0.45);
+}
+
+.submit-btn:active {
+  transform: scale(0.96);
+}
+
+.submit-btn:disabled {
+  background: #cbd5e1;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 /* Mobile */
