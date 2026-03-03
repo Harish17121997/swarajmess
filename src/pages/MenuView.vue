@@ -112,10 +112,7 @@ import { getCustomerMealsApi } from '@/services/api'
 const meals = ref([])
 const loading = ref(true)
 const messName = ref('')
-const imageUrls = ref([
-  "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1490645935967-10de6ba17061"])
+const imageUrls = ref([])
 const currentSlide = ref(0)
 let interval = null
 const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })
@@ -154,7 +151,7 @@ onMounted(async () => {
     const response = await getCustomerMealsApi(userId)
     meals.value = response.data?.meals || []
     messName.value = response.data?.user_name
-    // imageUrls.value = response.data?.image_urls || []
+    imageUrls.value = response.data?.image_urls || []
   } catch (err) {
     console.error(err)
   } finally {

@@ -92,4 +92,24 @@ export const getCustomerMealsApi = (userId) => {
     }
   })
 }
+
+// img
+// UPLOAD MEAL IMAGES
+export const uploadMealImagesApi = (formData) => {
+  return api.post('/upload-meals-images', formData, {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`,
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+// GET USER MEAL IMAGES
+export const getMealImagesApi = () => {
+  return api.get('/user-meals-images', {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
 export default api

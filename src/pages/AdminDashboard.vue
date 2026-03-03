@@ -46,124 +46,167 @@
         </div>
       </div>
       <hr class="horizontal" />
+      <!-- ================= TABS ================= -->
+      <div class="tabs-container">
+        <button :class="['tab-btn', activeTab === 'add' ? 'active-tab' : '']" @click="activeTab = 'add'">
+          + Add Meal
+        </button>
 
-      <div class="mess-toggle">
-        <span class="status-text">
-          Mess Status :
-          <b :class="messOpen ? 'open' : 'closed'">
-            {{ messOpen ? 'OPEN' : 'CLOSED' }}
-          </b>
-        </span>
-        <label class="switch">
-          <input type="checkbox" v-model="messOpen" @change="saveMessStatus" :disabled="statusLoading" />
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- MEAL TYPE -->
-      <div class="form-group">
-        <label>Meal Type</label>
-
-        <Multiselect v-model="mealType" :options="mealOptions" label="label" track-by="value" :multiple="false"
-          :close-on-select="true" :show-labels="false" placeholder="Select Meal Type" class="multi"
-          :disabled="!messOpen || mealsLoading" />
-      </div>
-
-      <!-- MENU SECTION -->
-      <div class="menu-section">
-        <div class="menu-header">
-          <label>Menu Items</label>
-
-          <!-- Toggle Price Input -->
-          <div class="price-toggle">
-            <input type="checkbox" id="showPrice" v-model="showPrice" />
-            <label for="showPrice">Show Price</label>
-          </div>
-        </div>
-        <!-- <label>Menu Items</label> -->
-
-        <div class="menu-row" v-for="(row, index) in rows" :key="index">
-          <Multiselect v-model="row.selected" :options="allItems" label="label" track-by="value" :multiple="false"
-            :taggable="true" :tag-placeholder="''" :close-on-select="true" :show-labels="false" placeholder="Select food item" class="multi"
-            :disabled="!messOpen" @tag="addNewMeal">
-            <template #option="{ option }">
-              <div class="option-row">
-                <span>{{ option.label }}</span>
-                <i class="pi pi-trash option-delete" @click.stop="deleteMeal(option)"></i>
-              </div>
-            </template>
-
-          </Multiselect>
-          <input v-if="showPrice" type="number" v-model="row.price" placeholder="Enter price" min="0"
-            class="price-input" />
-          <button class="remove-btn" @click="removeRow(index)"> <i class="pi pi-trash delete-btn-color"></i> </button>
-        </div>
-        <button class="add-btn" @click="addRow">
-          + Add More Item
+        <button :class="['tab-btn', activeTab === 'list' ? 'active-tab' : '']" @click="activeTab = 'list'">
+          📋 Menu List
         </button>
       </div>
-
-      <!-- SAVE -->
-      <button class="save-btn" @click="saveMenu" :disabled="loading || !messOpen">
-        <span v-if="loading" class="spinner"></span>
-        {{ loading ? 'Saving...' : 'Save Menu' }}
-      </button>
-      <p v-if="success" class="success-msg">
-        ✔ Menu Saved Successfully
-      </p>
-
-
-
-      <!-- ================= CURRENT MEALS LIST ================= -->
-      <div v-if="messOpen" class="current-section">
-        <h3> Today's Menu <p class="date">{{ today }}</p>
-        </h3>
-
-        <div v-if="currentLoading" class="loading-text">
-          Loading meals...
+      <div v-if="activeTab === 'add'">
+        <div class="mess-toggle">
+          <span class="status-text">
+            Mess Status :
+            <b :class="messOpen ? 'open' : 'closed'">
+              {{ messOpen ? 'OPEN' : 'CLOSED' }}
+            </b>
+          </span>
+          <label class="switch">
+            <input type="checkbox" v-model="messOpen" @change="saveMessStatus" :disabled="statusLoading" />
+            <span class="slider"></span>
+          </label>
         </div>
 
-        <!-- BREAKFAST -->
-        <div v-if="groupedMeals.breakfast.length" class="meal-block">
-          <h4 class="breakfast">🌅 Breakfast</h4>
-          <div class="meal-item" v-for="meal in groupedMeals.breakfast" :key="meal.id">
-            <div class="meal-left">
-              <span class="meal-name">{{ meal.meal_name }}</span>
-            </div>
+        <!-- MEAL TYPE -->
+        <div class="form-group">
+          <label>Meal Type</label>
 
-            <div class="meal-right">
-              <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
-              <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+          <Multiselect v-model="mealType" :options="mealOptions" label="label" track-by="value" :multiple="false"
+            :close-on-select="true" :show-labels="false" placeholder="Select Meal Type" class="multi"
+            :disabled="!messOpen || mealsLoading" />
+        </div>
+
+        <!-- MENU SECTION -->
+        <div class="menu-section">
+          <div class="menu-header">
+            <label>Menu Items</label>
+
+            <!-- Toggle Price Input -->
+            <div class="price-toggle">
+              <input type="checkbox" id="showPrice" v-model="showPrice" />
+              <label for="showPrice">Show Price</label>
+            </div>
+          </div>
+          <!-- <label>Menu Items</label> -->
+
+          <div class="menu-row" v-for="(row, index) in rows" :key="index">
+            <Multiselect v-model="row.selected" :options="allItems" label="label" track-by="value" :multiple="false"
+              :taggable="true" :tag-placeholder="''" :close-on-select="true" :show-labels="false"
+              placeholder="Select food item" class="multi" :disabled="!messOpen" @tag="addNewMeal">
+              <template #option="{ option }">
+                <div class="option-row">
+                  <span>{{ option.label }}</span>
+                  <i class="pi pi-trash option-delete" @click.stop="deleteMeal(option)"></i>
+                </div>
+              </template>
+
+            </Multiselect>
+            <input v-if="showPrice" type="number" v-model="row.price" placeholder="Enter price" min="0"
+              class="price-input" />
+            <button class="remove-btn" @click="removeRow(index)"> <i class="pi pi-trash delete-btn-color"></i> </button>
+          </div>
+          <button class="add-btn" @click="addRow">
+            + Add More Item
+          </button>
+        </div>
+
+        <!-- SAVE -->
+        <button class="save-btn" @click="saveMenu" :disabled="loading || !messOpen">
+          <span v-if="loading" class="spinner"></span>
+          {{ loading ? 'Saving...' : 'Save Menu' }}
+        </button>
+        <p v-if="success" class="success-msg">
+          ✔ Menu Saved Successfully
+        </p>
+      </div>
+
+      <!-- ================= IMAGE UPLOAD SECTION ================= -->
+      <div v-if="activeTab === 'list'">
+        <div class="image-upload-section">
+          <h3 class="upload-title">Meal Images (Max 3)</h3>
+
+          <!-- Custom File Upload -->
+          <label class="custom-file-upload">
+            <input type="file" accept="image/*" multiple @change="handleImageSelect" />
+            <span>📷 Choose Images</span>
+          </label>
+
+          <!-- Preview -->
+          <div class="preview-grid" v-if="imagePreviews.length">
+            <div v-for="(img, index) in imagePreviews" :key="index" class="preview-box">
+              <img :src="img" />
+              <button class="remove-img-btn" @click="removeImage(index)">✖</button>
+            </div>
+          </div>
+
+          <!-- Upload Button -->
+          <button class="upload-btn" @click="uploadImages" :disabled="imageFiles.length === 0 || uploadingImages">
+            <span v-if="uploadingImages" class="spinner"></span>
+            {{ uploadingImages ? 'Uploading...' : 'Upload Images' }}
+          </button>
+
+          <!-- Uploaded Images -->
+          <div class="uploaded-grid" v-if="uploadedImages.length">
+            <div v-for="(img, index) in uploadedImages" :key="index">
+              <img :src="img" />
             </div>
           </div>
         </div>
 
-        <!-- LUNCH -->
-        <div v-if="groupedMeals.lunch.length" class="meal-block">
-          <h4 class="breakfast"> 🍛 Lunch</h4>
-          <div class="meal-item" v-for="meal in groupedMeals.lunch" :key="meal.id">
-            <div class="meal-left">
-              <span class="meal-name">{{ meal.meal_name }}</span>
-            </div>
+        <!-- ================= CURRENT MEALS LIST ================= -->
+        <div v-if="messOpen" class="current-section">
+          <h3> Today's Menu <p class="date">{{ today }}</p>
+          </h3>
 
-            <div class="meal-right">
-              <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price ?? 0 }}</span>
-              <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+          <div v-if="currentLoading" class="loading-text">
+            Loading meals...
+          </div>
+
+          <!-- BREAKFAST -->
+          <div v-if="groupedMeals.breakfast.length" class="meal-block">
+            <h4 class="breakfast">🌅 Breakfast</h4>
+            <div class="meal-item" v-for="meal in groupedMeals.breakfast" :key="meal.id">
+              <div class="meal-left">
+                <span class="meal-name">{{ meal.meal_name }}</span>
+              </div>
+
+              <div class="meal-right">
+                <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
+                <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- DINNER -->
-        <div v-if="groupedMeals.dinner.length" class="meal-block">
-          <h4 class="breakfast">🌙 Dinner</h4>
-          <div class="meal-item" v-for="meal in groupedMeals.dinner" :key="meal.id">
-            <div class="meal-left">
-              <span class="meal-name">{{ meal.meal_name }}</span>
+          <!-- LUNCH -->
+          <div v-if="groupedMeals.lunch.length" class="meal-block">
+            <h4 class="breakfast"> 🍛 Lunch</h4>
+            <div class="meal-item" v-for="meal in groupedMeals.lunch" :key="meal.id">
+              <div class="meal-left">
+                <span class="meal-name">{{ meal.meal_name }}</span>
+              </div>
+
+              <div class="meal-right">
+                <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price ?? 0 }}</span>
+                <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+              </div>
             </div>
+          </div>
 
-            <div class="meal-right">
-              <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
-              <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+          <!-- DINNER -->
+          <div v-if="groupedMeals.dinner.length" class="meal-block">
+            <h4 class="breakfast">🌙 Dinner</h4>
+            <div class="meal-item" v-for="meal in groupedMeals.dinner" :key="meal.id">
+              <div class="meal-left">
+                <span class="meal-name">{{ meal.meal_name }}</span>
+              </div>
+
+              <div class="meal-right">
+                <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
+                <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -178,12 +221,13 @@ import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
 import {
   addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi,
-  getCurrentMealsApi, softDeleteMealApi, getVisitsApi
+  getCurrentMealsApi, softDeleteMealApi, getVisitsApi, uploadMealImagesApi, getMealImagesApi
 } from '@/services/api'
 import { useToast } from "vue-toastification"
 
 const toast = useToast()
 const router = useRouter()
+const activeTab = ref('add') // default tab
 const messOpen = ref(true)
 const statusLoading = ref(false)
 const success = ref(false)
@@ -216,6 +260,11 @@ const mealOptions = [
   { label: 'Lunch', value: 1 },
   { label: 'Dinner', value: 2 }
 ]
+// img upload
+const imageFiles = ref([])
+const imagePreviews = ref([])
+const uploadedImages = ref([])
+const uploadingImages = ref(false)
 /* ---------- MULTISELECT ROWS ---------- */
 function addRow() {
   rows.value.push({ selected: [] })
@@ -315,12 +364,17 @@ async function saveMenu() {
     toast.error('Please select meal type')
     return
   }
+  // ✅ Strict validation
   const selectedItems = rows.value
-    .filter(row => row.selected)
+    .filter(row =>
+      row.selected &&
+      row.selected.label &&
+      row.selected.label.trim() !== ''
+    )
     .map(row => ({
       meal_flag: mealType.value.value,
-      meal_name: row.selected.label,
-      meal_price: row.price ?? 0  // default to 0 if not entered
+      meal_name: row.selected.label.trim(),
+      meal_price: row.price && row.price > 0 ? row.price : 0
     }))
 
   if (selectedItems.length === 0) {
@@ -330,7 +384,7 @@ async function saveMenu() {
   loading.value = true
   success.value = false
   try {
-    await addMealApi({ meals: selectedItems }) // send array in one call
+    await addMealApi({ meals: selectedItems })
     toast.success("Menu saved successfully")
     success.value = true
     rows.value = [{ selected: null, price: null }]
@@ -386,12 +440,65 @@ async function fetchVisits() {
     toast.error("Failed to fetch visitor stats")
   }
 }
+// img
+function handleImageSelect(event) {
+  const files = Array.from(event.target.files)
+
+  if (files.length + imageFiles.value.length > 3) {
+    toast.error("Maximum 3 images allowed")
+    return
+  }
+
+  files.forEach(file => {
+    imageFiles.value.push(file)
+    imagePreviews.value.push(URL.createObjectURL(file))
+  })
+}
+function removeImage(index) {
+  imageFiles.value.splice(index, 1)
+  imagePreviews.value.splice(index, 1)
+}
+async function uploadImages() {
+  if (imageFiles.value.length === 0) return
+
+  const formData = new FormData()
+
+  imageFiles.value.forEach(file => {
+    formData.append('images', file)
+  })
+
+  uploadingImages.value = true
+
+  try {
+    await uploadMealImagesApi(formData)
+    toast.success("Images uploaded successfully")
+
+    imageFiles.value = []
+    imagePreviews.value = []
+
+    fetchMealImages()
+
+  } catch (error) {
+    toast.error("Failed to upload images")
+  } finally {
+    uploadingImages.value = false
+  }
+}
+async function fetchMealImages() {
+  try {
+    const res = await getMealImagesApi()
+    uploadedImages.value = res.data.images // adjust if backend format differs
+  } catch (error) {
+    toast.error("Failed to load images")
+  }
+}
 
 onMounted(() => {
   fetchMessStatus()
   fetchMeals()
   fetchCurrentMeals()
   fetchVisits()
+  fetchMealImages()
 })
 </script>
 <style scoped>
@@ -1036,7 +1143,7 @@ label {
 .delete-icon {
   color: #ef4444;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 17px;
   transition: 0.2s;
 }
 
@@ -1060,5 +1167,209 @@ label {
   margin: 20px 0px;
   border: 1px solid #e2e8f0;
   ;
+}
+
+.image-upload-section {
+  margin-top: 20px;
+}
+
+.preview-grid,
+.uploaded-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.preview-box {
+  position: relative;
+}
+
+.preview-box img,
+.uploaded-grid img {
+  width: 98px;
+  height: 98px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.preview-box button {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ================= IMAGE UPLOAD ================= */
+
+.upload-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #0f172a;
+}
+
+/* Hide default input */
+.custom-file-upload input {
+  display: none;
+}
+
+/* Styled File Button */
+.custom-file-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.custom-file-upload:hover {
+  background: #e0f2fe;
+  border-color: #0ea5e9;
+  transform: translateY(-2px);
+}
+
+/* Upload Button (Gradient like Save) */
+.upload-btn {
+  width: 100%;
+  height: 50px;
+  border-radius: 16px;
+  border: none;
+  margin-top: 16px;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+  transition: all 0.25s ease;
+}
+
+.upload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.45);
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Preview Grid */
+.preview-grid,
+.uploaded-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.preview-box {
+  position: relative;
+}
+
+.preview-box img,
+.uploaded-grid img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Remove Button */
+.remove-img-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.remove-img-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin 0.8s linear infinite;
+  margin-right: 6px;
+}
+
+/* ================= TABS ================= */
+
+.tabs-container {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 16px;
+  margin-bottom: 22px;
+  border: 1px solid #e2e8f0;
+}
+
+
+.tab-btn {
+  flex: 1;
+  height: 42px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  font-size: 14px;
+  color: #475569;
+  transition: all 0.25s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-btn:hover {
+  color: #0ea5e9;
+}
+
+/* Active Tab */
+.active-tab {
+  background: white;
+  color: #0ea5e9;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Image Section Inside List */
+.menu-images-section {
+  margin-bottom: 20px;
+}
+
+.menu-images-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #0f172a;
 }
 </style>
