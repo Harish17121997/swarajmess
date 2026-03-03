@@ -22,62 +22,82 @@
       </div>
 
       <!-- No Menu -->
-      <div v-else-if="!groupedMeals.breakfast.length && !groupedMeals.lunch.length && !groupedMeals.dinner.length"
-        class="state-text error">
+      <div v-else-if="
+        !Object.keys(groupedMeals.breakfast).length &&
+        !Object.keys(groupedMeals.lunch).length &&
+        !Object.keys(groupedMeals.dinner).length
+      " class="state-text error">
         🚫 No Menu Available Today
       </div>
 
       <!-- Menu Sections -->
       <div v-else>
         <!-- Breakfast -->
-        <div v-if="groupedMeals.breakfast?.length" class="meal-section breakfast">
+        <div v-if="Object.keys(groupedMeals.breakfast).length" class="meal-section breakfast">
           <div class="meal-title">
             <span class="meal-badge">🍳</span> Breakfast (7 AM - 10 AM)
           </div>
-          <div class="items">
-            <div class="item-card" v-for="item in groupedMeals.breakfast" :key="item.id">
-              <div class="item-row">
-                <span class="item-name">{{ item.meal_name }}</span>
-                <span class="rate-icon" @click="openRating(item)">⭐</span>
-                <span v-if="item.meal_price !== null" class="item-price">
-                  ₹{{ Number(item.meal_price) }}
-                </span>
+          <div v-for="(items, title) in groupedMeals.breakfast" :key="title">
+            <!-- Show Title if exists -->
+            <div v-if="title !== 'general'" class="group-title">
+              {{ title }}
+            </div>
+            <div class="items">
+              <div class="item-card" v-for="item in items" :key="item.id">
+                <div class="item-row">
+                  <span class="item-name">{{ item.meal_name }}</span>
+                  <span class="rate-icon" @click="openRating(item)">⭐</span>
+                  <span v-if="item.meal_price !== null" class="item-price">
+                    ₹{{ Number(item.meal_price) }}
+                  </span>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
 
         <!-- Lunch -->
-        <div v-if="groupedMeals.lunch?.length" class="meal-section lunch">
+        <div v-if="Object.keys(groupedMeals.lunch).length" class="meal-section lunch">
           <div class="meal-title">
             <span class="meal-badge">🍛</span> Lunch (12 PM - 3 PM)
           </div>
-          <div class="items">
-            <div class="item-card" v-for="item in groupedMeals.lunch" :key="item.id">
-              <div class="item-row">
-                <span class="item-name">{{ item.meal_name }}</span>
-                <span class="rate-icon" @click="openRating(item)">⭐</span>
-                <span v-if="item.meal_price !== null" class="item-price">
-                  ₹{{ Number(item.meal_price) }}
-                </span>
+          <div v-for="(items, title) in groupedMeals.lunch" :key="title">
+            <div v-if="title !== 'general'" class="group-title">
+              {{ title }}
+            </div>
+            <div class="items">
+              <div class="item-card" v-for="item in items" :key="item.id">
+                <div class="item-row">
+                  <span class="item-name">{{ item.meal_name }}</span>
+                  <span class="rate-icon" @click="openRating(item)">⭐</span>
+                  <span v-if="item.meal_price !== null" class="item-price">
+                    ₹{{ Number(item.meal_price) }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Dinner -->
-        <div v-if="groupedMeals.dinner?.length" class="meal-section dinner">
+        <div v-if="Object.keys(groupedMeals.dinner).length" class="meal-section dinner">
           <div class="meal-title">
             <span class="meal-badge">🌙</span> Dinner (6 PM - 10 PM)
           </div>
-          <div class="items">
-            <div class="item-card" v-for="item in groupedMeals.dinner" :key="item.id">
-              <div class="item-row">
-                <span class="item-name">{{ item.meal_name }}</span>
-                <span class="rate-icon" @click="openRating(item)">⭐</span>
-                <span v-if="item.meal_price !== null" class="item-price">
-                  ₹{{ Number(item.meal_price) }}
-                </span>
+          <div v-for="(items, title) in groupedMeals.dinner" :key="title">
+            <div v-if="title !== 'general'" class="group-title">
+              {{ title }}
+            </div>
+            <div class="items">
+              <div class="item-card" v-for="item in items" :key="item.id">
+                <div class="item-row">
+                  <span class="item-name">{{ item.meal_name }}</span>
+                  <span class="rate-icon" @click="openRating(item)">⭐</span>
+                  <span v-if="item.meal_price !== null" class="item-price">
+                    ₹{{ Number(item.meal_price) }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -168,11 +188,28 @@ onBeforeUnmount(() => {
   clearInterval(interval)
 })
 
-const groupedMeals = computed(() => ({
-  breakfast: meals.value?.filter(m => m.meal_flag === 0),
-  lunch: meals.value?.filter(m => m.meal_flag === 1),
-  dinner: meals.value?.filter(m => m.meal_flag === 2)
-}))
+const groupByTitle = (mealArray) => {
+  const grouped = {}
+  mealArray.forEach(meal => {
+    const key = meal.title || 'general'
+    if (!grouped[key]) {
+      grouped[key] = []
+    }
+    grouped[key].push(meal)
+  })
+  return grouped
+}
+
+const groupedMeals = computed(() => {
+  const breakfast = meals.value.filter(m => m.meal_flag === 0)
+  const lunch = meals.value.filter(m => m.meal_flag === 1)
+  const dinner = meals.value.filter(m => m.meal_flag === 2)
+  return {
+    breakfast: groupByTitle(breakfast),
+    lunch: groupByTitle(lunch),
+    dinner: groupByTitle(dinner)
+  }
+})
 </script>
 
 <style scoped>
@@ -492,5 +529,39 @@ body {
     font-size: 14px;
     padding: 12px 16px;
   }
+}
+
+/* ===== GROUP TITLE STYLE (Modern Badge Style) ===== */
+
+.group-title {
+  margin: 16px 0 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  display: inline-block;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Breakfast ===== */
+.breakfast .group-title {
+  background: linear-gradient(135deg, #ff9a44, #ffb347);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(255, 154, 68, 0.4);
+}
+
+/* ===== Lunch ===== */
+.lunch .group-title {
+  background: linear-gradient(135deg, #43cea2, #185a9d);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(67, 206, 162, 0.4);
+}
+
+/* ===== Dinner ===== */
+.dinner .group-title {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
 }
 </style>
