@@ -72,17 +72,22 @@
 
         <!-- MEAL TYPE -->
         <div class="form-group">
-          <label>Meal Type</label>
+          <label>Meal Type<span style="color: red;"> *</span></label>
 
           <Multiselect v-model="mealType" :options="mealOptions" label="label" track-by="value" :multiple="false"
             :close-on-select="true" :show-labels="false" placeholder="Select Meal Type" class="multi"
             :disabled="!messOpen || mealsLoading" />
         </div>
-
+        <!-- TITLE INPUT -->
+        <div class="form-group">
+          <label>Menu Title</label>
+          <input type="text" v-model="menuTitle" placeholder="Enter Title (Example: Veg Thali)" class="title-input"
+            :disabled="!messOpen" />
+        </div>
         <!-- MENU SECTION -->
         <div class="menu-section">
           <div class="menu-header">
-            <label>Menu Items</label>
+            <label>Menu Items<span style="color: red;"> *</span></label>
 
             <!-- Toggle Price Input -->
             <div class="price-toggle">
@@ -150,8 +155,9 @@
 
           <!-- Uploaded Images -->
           <div class="uploaded-grid" v-if="uploadedImages.length">
-            <div v-for="(img, index) in uploadedImages" :key="index">
+            <div v-for="(img, index) in uploadedImages" :key="index" class="uploaded-box">
               <img :src="img" />
+              <button class="remove-img-btn" @click="deleteUploadedImage(img)">✖</button>
             </div>
           </div>
         </div>
@@ -166,47 +172,86 @@
           </div>
 
           <!-- BREAKFAST -->
-          <div v-if="groupedMeals.breakfast.length" class="meal-block">
-            <h4 class="breakfast">🌅 Breakfast</h4>
-            <div class="meal-item" v-for="meal in groupedMeals.breakfast" :key="meal.id">
-              <div class="meal-left">
-                <span class="meal-name">{{ meal.meal_name }}</span>
+          <div v-if="Object.keys(groupedMeals.breakfast).length" class="meal-block">
+            <h4 class="meal-heading">🌅 Breakfast</h4>
+
+            <div v-for="(meals, title) in groupedMeals.breakfast" :key="title">
+
+              <!-- Show Title Only If Not General -->
+              <div v-if="title !== 'General'" class="meal-title-tag">
+                {{ title }}
               </div>
 
-              <div class="meal-right">
-                <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
-                <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+              <div class="meal-item" v-for="meal in meals" :key="meal.id">
+                <div class="meal-left">
+                  <span class="meal-name">{{ meal.meal_name }}</span>
+                </div>
+
+                <div class="meal-right">
+                  <span v-if="meal.meal_price > 0" class="price">
+                    ₹{{ meal.meal_price }}
+                  </span>
+
+                  <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+                </div>
               </div>
+
             </div>
           </div>
 
           <!-- LUNCH -->
-          <div v-if="groupedMeals.lunch.length" class="meal-block">
-            <h4 class="breakfast"> 🍛 Lunch</h4>
-            <div class="meal-item" v-for="meal in groupedMeals.lunch" :key="meal.id">
-              <div class="meal-left">
-                <span class="meal-name">{{ meal.meal_name }}</span>
+          <div v-if="Object.keys(groupedMeals.lunch).length" class="meal-block">
+            <h4 class="meal-heading">🍛 Lunch</h4>
+
+            <div v-for="(meals, title) in groupedMeals.lunch" :key="title">
+
+              <div v-if="title !== 'General'" class="meal-title-tag">
+                {{ title }}
               </div>
 
-              <div class="meal-right">
-                <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price ?? 0 }}</span>
-                <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+              <div class="meal-item" v-for="meal in meals" :key="meal.id">
+                <div class="meal-left">
+                  <span class="meal-name">{{ meal.meal_name }}</span>
+                </div>
+
+                <div class="meal-right">
+                  <span v-if="meal.meal_price > 0" class="price">
+                    ₹{{ meal.meal_price }}
+                  </span>
+
+                  <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+                </div>
               </div>
+
             </div>
           </div>
 
           <!-- DINNER -->
-          <div v-if="groupedMeals.dinner.length" class="meal-block">
-            <h4 class="breakfast">🌙 Dinner</h4>
-            <div class="meal-item" v-for="meal in groupedMeals.dinner" :key="meal.id">
-              <div class="meal-left">
-                <span class="meal-name">{{ meal.meal_name }}</span>
+          <div v-if="Object.keys(groupedMeals.dinner).length" class="meal-block">
+            <h4 class="meal-heading">🌙 Dinner</h4>
+
+            <div v-for="(meals, title) in groupedMeals.dinner" :key="title" class="title-group">
+
+              <!-- Show Title Only If Exists -->
+              <div v-if="title !== 'General'" class="meal-title-tag">
+                {{ title }}
               </div>
 
-              <div class="meal-right">
-                <span v-if="meal.meal_price && meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
-                <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+              <!-- Items Under Title -->
+              <div class="meal-item" v-for="meal in meals" :key="meal.id">
+                <div class="meal-left">
+                  <span class="meal-name">{{ meal.meal_name }}</span>
+                </div>
+
+                <div class="meal-right">
+                  <span v-if="meal.meal_price > 0" class="price">
+                    ₹{{ meal.meal_price }}
+                  </span>
+
+                  <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+                </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -221,7 +266,7 @@ import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
 import {
   addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi,
-  getCurrentMealsApi, softDeleteMealApi, getVisitsApi, uploadMealImagesApi, getMealImagesApi
+  getCurrentMealsApi, softDeleteMealApi, getVisitsApi, uploadMealImagesApi, getMealImagesApi, deleteMealImagesApi
 } from '@/services/api'
 import { useToast } from "vue-toastification"
 
@@ -232,6 +277,7 @@ const messOpen = ref(true)
 const statusLoading = ref(false)
 const success = ref(false)
 const loading = ref(false)
+const menuTitle = ref("")
 const rows = ref([{ selected: null, price: null }])
 const allItems = ref([])
 const mealsLoading = ref(false)
@@ -271,10 +317,33 @@ function addRow() {
 }
 
 const groupedMeals = computed(() => {
+
+  function groupByTitle(meals) {
+    const grouped = {}
+
+    meals.forEach(meal => {
+      const title = meal.title || "General"
+
+      if (!grouped[title]) {
+        grouped[title] = []
+      }
+
+      grouped[title].push(meal)
+    })
+
+    return grouped
+  }
+
   return {
-    breakfast: currentMeals.value.filter(m => m.meal_flag === 0),
-    lunch: currentMeals.value.filter(m => m.meal_flag === 1),
-    dinner: currentMeals.value.filter(m => m.meal_flag === 2)
+    breakfast: groupByTitle(
+      currentMeals.value.filter(m => m.meal_flag === 0)
+    ),
+    lunch: groupByTitle(
+      currentMeals.value.filter(m => m.meal_flag === 1)
+    ),
+    dinner: groupByTitle(
+      currentMeals.value.filter(m => m.meal_flag === 2)
+    )
   }
 })
 
@@ -313,6 +382,21 @@ async function addNewMeal(searchText) {
   }
   allItems.value.push(tempItem)
   rows.value[rows.value.length - 1].selected = tempItem
+}
+/* ---------- LOGOUT ---------- */
+async function deleteUploadedImage(imageUrl) {
+  try {
+    const imageName = imageUrl.split('/').pop()
+    await deleteMealImagesApi({
+      image_names: [imageName]
+    })
+    toast.success("Image deleted successfully")
+    uploadedImages.value = uploadedImages.value.filter(
+      img => img !== imageUrl
+    )
+  } catch (error) {
+    toast.error("Failed to delete image")
+  }
 }
 
 function logout() {
@@ -364,7 +448,6 @@ async function saveMenu() {
     toast.error('Please select meal type')
     return
   }
-  // ✅ Strict validation
   const selectedItems = rows.value
     .filter(row =>
       row.selected &&
@@ -374,7 +457,8 @@ async function saveMenu() {
     .map(row => ({
       meal_flag: mealType.value.value,
       meal_name: row.selected.label.trim(),
-      meal_price: row.price && row.price > 0 ? row.price : 0
+      meal_price: row.price && row.price > 0 ? row.price : 0,
+      title: menuTitle.value?.trim() || null  // ✅ ADD TITLE HERE
     }))
 
   if (selectedItems.length === 0) {
@@ -389,6 +473,7 @@ async function saveMenu() {
     success.value = true
     rows.value = [{ selected: null, price: null }]
     mealType.value = null
+    menuTitle.value = ""
     fetchCurrentMeals()
   } catch (error) {
     toast.error('Failed to save menu')
@@ -731,7 +816,7 @@ label {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .price-toggle {
@@ -1098,6 +1183,8 @@ label {
   border-radius: 5px;
   margin-bottom: 8px;
   padding: 7px 0px;
+  display: flex;
+  justify-content: center;
   box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2), 4px 0 3px 0 rgba(0, 0, 0, 0.14), 1px 0 10px 0 rgba(0, 0, 0, 0.12)
 }
 
@@ -1280,16 +1367,6 @@ label {
   position: relative;
 }
 
-.preview-box img,
-.uploaded-grid img {
-  width: 110px;
-  height: 110px;
-  object-fit: cover;
-  border-radius: 14px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-}
-
 /* Remove Button */
 .remove-img-btn {
   position: absolute;
@@ -1371,5 +1448,116 @@ label {
   font-weight: 600;
   margin-bottom: 10px;
   color: #0f172a;
+}
+
+.uploaded-box {
+  position: relative;
+}
+
+.uploaded-box img {
+  width: 98px;
+  height: 98px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.uploaded-box .remove-img-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.uploaded-box .remove-img-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ================= MENU TITLE INPUT ================= */
+
+.menu-title-input {
+  width: 100%;
+  height: 50px;
+  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 500;
+  background: linear-gradient(145deg, #f8fafc, #ffffff);
+  transition: all 0.25s ease;
+}
+
+.menu-title-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.menu-title-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+  transform: translateY(-1px);
+}
+
+/* ================= GROUP TITLE INSIDE MEAL ================= */
+
+.meal-title-tag {
+  margin: 6px 0 10px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(135deg, #dbeafe, #60666e);
+  color: #ed2e00;
+  letter-spacing: 0.3px;
+  text-transform: capitalize;
+}
+
+/* ===== TITLE INPUT ===== */
+.title-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+/* Focus Effect */
+.title-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Disabled */
+.title-input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* Mobile Optimization */
+@media (max-width: 600px) {
+  .title-input {
+    height: 42px;
+    font-size: 13px;
+  }
+}
+
+.menu-section {
+  margin-top: 10px;
 }
 </style>

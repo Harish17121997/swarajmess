@@ -112,4 +112,13 @@ export const getMealImagesApi = () => {
     }
   })
 }
+// DELETE MEAL IMAGES
+export const deleteMealImagesApi = (data) => {
+  return api.delete('/delete-meal-images', {
+    headers: {
+      Authorization: localStorage.getItem('token')
+    },
+    data: data
+  })
+}
 export default api
