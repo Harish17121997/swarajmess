@@ -35,7 +35,7 @@
         <!-- Breakfast -->
         <div v-if="Object.keys(groupedMeals.breakfast).length" class="meal-section breakfast">
           <div class="meal-title">
-            <span class="meal-badge">🍳</span> Breakfast (7 AM - 10 AM)
+            <span class="meal-badge">🍳</span> Breakfast  (7 AM - 10 AM)
           </div>
           <div v-for="(items, title) in groupedMeals.breakfast" :key="title">
             <!-- Show Title if exists -->
@@ -60,7 +60,7 @@
         <!-- Lunch -->
         <div v-if="Object.keys(groupedMeals.lunch).length" class="meal-section lunch">
           <div class="meal-title">
-            <span class="meal-badge">🍛</span> Lunch (12 PM - 3 PM)
+            <span class="meal-badge">🍛</span> Lunch  (12 PM - 3 PM)
           </div>
           <div v-for="(items, title) in groupedMeals.lunch" :key="title">
             <div v-if="title !== 'general'" class="group-title">
@@ -83,7 +83,7 @@
         <!-- Dinner -->
         <div v-if="Object.keys(groupedMeals.dinner).length" class="meal-section dinner">
           <div class="meal-title">
-            <span class="meal-badge">🌙</span> Dinner (6 PM - 10 PM)
+            <span class="meal-badge">🌙</span> Dinner  (6 PM - 10 PM)
           </div>
           <div v-for="(items, title) in groupedMeals.dinner" :key="title">
             <div v-if="title !== 'general'" class="group-title">
@@ -532,36 +532,31 @@ body {
 }
 
 /* ===== GROUP TITLE STYLE (Modern Badge Style) ===== */
-
 .group-title {
-  margin: 16px 0 10px;
-  padding: 8px 14px;
+  margin: 22px 0;
   font-size: 13px;
-  font-weight: 600;
-  border-radius: 8px;
-  display: inline-block;
-  text-transform: capitalize;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  position: relative;
+  letter-spacing: 1px;
 }
 
-/* ===== Breakfast ===== */
-.breakfast .group-title {
-  background: linear-gradient(135deg, #ff9a44, #ffb347);
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(255, 154, 68, 0.4);
+.group-title::before,
+.group-title::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.15);
 }
 
-/* ===== Lunch ===== */
-.lunch .group-title {
-  background: linear-gradient(135deg, #43cea2, #185a9d);
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(67, 206, 162, 0.4);
+.group-title::before {
+  left: 0;
 }
 
-/* ===== Dinner ===== */
-.dinner .group-title {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #ffffff;
-  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+.group-title::after {
+  right: 0;
 }
 </style>
