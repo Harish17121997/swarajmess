@@ -121,4 +121,11 @@ export const deleteMealImagesApi = (data) => {
     data: data
   })
 }
+export const deleteMealsByFlagApi = (flag) => {
+  return api.delete(`/meals-by-flag/${flag}?soft_delete=0`, {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
 export default api

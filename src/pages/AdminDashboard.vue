@@ -173,12 +173,17 @@
 
           <!-- BREAKFAST -->
           <div v-if="Object.keys(groupedMeals.breakfast).length" class="meal-block">
-            <h4 class="meal-heading">🌅 Breakfast</h4>
+            <div class="meal-heading">
+              <h4>🌅 Breakfast</h4>
+              <button class="delete-type-btn" @click="deleteMealType(0, 'Breakfast')">
+                Delete All
+              </button>
+            </div>
 
             <div v-for="(meals, title) in groupedMeals.breakfast" :key="title">
 
               <!-- Show Title Only If Not General -->
-              <div v-if="title !== 'General'" class="meal-title-tag">
+              <div v-if="title !== 'General'" class="group-title">
                 {{ title }}
               </div>
 
@@ -201,11 +206,16 @@
 
           <!-- LUNCH -->
           <div v-if="Object.keys(groupedMeals.lunch).length" class="meal-block">
-            <h4 class="meal-heading">🍛 Lunch</h4>
+            <div class="meal-heading">
+              <h4>🍛 Lunch</h4>
+              <button class="delete-type-btn" @click="deleteMealType(1, 'Breakfast')">
+                Delete All
+              </button>
+            </div>
 
             <div v-for="(meals, title) in groupedMeals.lunch" :key="title">
 
-              <div v-if="title !== 'General'" class="meal-title-tag">
+              <div v-if="title !== 'General'" class="group-title">
                 {{ title }}
               </div>
 
@@ -228,12 +238,17 @@
 
           <!-- DINNER -->
           <div v-if="Object.keys(groupedMeals.dinner).length" class="meal-block">
-            <h4 class="meal-heading">🌙 Dinner</h4>
+            <div class="meal-heading">
+              <h4>🌙 Dinner</h4>
+              <button class="delete-type-btn" @click="deleteMealType(2, 'Breakfast')">
+                Delete All
+              </button>
+            </div>
 
             <div v-for="(meals, title) in groupedMeals.dinner" :key="title" class="title-group">
 
               <!-- Show Title Only If Exists -->
-              <div v-if="title !== 'General'" class="meal-title-tag">
+              <div v-if="title !== 'General'" class="group-title">
                 {{ title }}
               </div>
 
@@ -265,7 +280,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
 import {
-  addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi,
+  addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi, deleteMealsByFlagApi,
   getCurrentMealsApi, softDeleteMealApi, getVisitsApi, uploadMealImagesApi, getMealImagesApi, deleteMealImagesApi
 } from '@/services/api'
 import { useToast } from "vue-toastification"
@@ -458,7 +473,7 @@ async function saveMenu() {
       meal_flag: mealType.value.value,
       meal_name: row.selected.label.trim(),
       meal_price: row.price && row.price > 0 ? row.price : 0,
-      title: menuTitle.value?.trim() || null  // ✅ ADD TITLE HERE
+      title: menuTitle.value?.trim() || 'Menu'  // ✅ ADD TITLE HERE
     }))
 
   if (selectedItems.length === 0) {
@@ -575,6 +590,23 @@ async function fetchMealImages() {
     uploadedImages.value = res.data.images // adjust if backend format differs
   } catch (error) {
     toast.error("Failed to load images")
+  }
+}
+async function deleteMealType(flag, typeName) {
+  toast.warning(`Click again to confirm deleting all ${typeName} meals`, { timeout: 4000 })
+  if (deleteMealType.confirming === flag) {
+    try {
+      const res = await deleteMealsByFlagApi(flag)
+      if (res.status === 200) {
+        toast.success(`${typeName} meals deleted successfully`)
+      }
+      fetchCurrentMeals()
+    } catch (error) {
+      toast.error(`Failed to delete ${typeName} meals`)
+    }
+    deleteMealType.confirming = null
+  } else {
+    deleteMealType.confirming = flag
   }
 }
 
@@ -1181,11 +1213,10 @@ label {
   font-weight: 600;
   color: #2563eb;
   border-radius: 5px;
-  margin-bottom: 8px;
   padding: 7px 0px;
   display: flex;
   justify-content: center;
-  box-shadow: 2px 0 2px -1px rgba(0, 0, 0, 0.2), 4px 0 3px 0 rgba(0, 0, 0, 0.14), 1px 0 10px 0 rgba(0, 0, 0, 0.12)
+  margin: auto;
 }
 
 .meal-item {
@@ -1507,22 +1538,6 @@ label {
   transform: translateY(-1px);
 }
 
-/* ================= GROUP TITLE INSIDE MEAL ================= */
-
-.meal-title-tag {
-  margin: 6px 0 10px;
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  background: linear-gradient(135deg, #dbeafe, #60666e);
-  color: #ed2e00;
-  letter-spacing: 0.3px;
-  text-transform: capitalize;
-}
-
 /* ===== TITLE INPUT ===== */
 .title-input {
   width: 100%;
@@ -1559,5 +1574,66 @@ label {
 
 .menu-section {
   margin-top: 10px;
+}
+
+.group-title {
+  margin: 12px 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-align: center;
+  position: relative;
+  letter-spacing: 1px;
+}
+
+.group-title::before,
+.group-title::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.group-title::before {
+  left: 0;
+}
+
+.group-title::after {
+  right: 0;
+}
+
+.meal-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1px 1px 1px 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.meal-heading h4 {
+  margin: 0;
+  /* 🔥 removes default top/bottom gap */
+  font-size: 14px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+/* Delete button */
+.delete-type-btn {
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 5px 14px;
+  border-radius: 999px;
+  /* pill shape */
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 </style>

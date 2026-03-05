@@ -35,7 +35,7 @@
         <!-- Breakfast -->
         <div v-if="Object.keys(groupedMeals.breakfast).length" class="meal-section breakfast">
           <div class="meal-title">
-            <span class="meal-badge">🍳</span> Breakfast  (7 AM - 10 AM)
+            <span class="meal-badge">🍳</span> Breakfast (7 AM - 10 AM)
           </div>
           <div v-for="(items, title) in groupedMeals.breakfast" :key="title">
             <!-- Show Title if exists -->
@@ -60,7 +60,7 @@
         <!-- Lunch -->
         <div v-if="Object.keys(groupedMeals.lunch).length" class="meal-section lunch">
           <div class="meal-title">
-            <span class="meal-badge">🍛</span> Lunch  (12 PM - 3 PM)
+            <span class="meal-badge">🍛</span> Lunch (12 PM - 3 PM)
           </div>
           <div v-for="(items, title) in groupedMeals.lunch" :key="title">
             <div v-if="title !== 'general'" class="group-title">
@@ -83,7 +83,7 @@
         <!-- Dinner -->
         <div v-if="Object.keys(groupedMeals.dinner).length" class="meal-section dinner">
           <div class="meal-title">
-            <span class="meal-badge">🌙</span> Dinner  (6 PM - 10 PM)
+            <span class="meal-badge">🌙</span> Dinner (6 PM - 10 PM)
           </div>
           <div v-for="(items, title) in groupedMeals.dinner" :key="title">
             <div v-if="title !== 'general'" class="group-title">
