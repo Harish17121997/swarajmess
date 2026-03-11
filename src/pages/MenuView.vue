@@ -7,6 +7,10 @@
         <h1>Welcome to <span class="mess-name">{{ messName }} </span></h1>
         <p class="subtitle">Your meals for today</p>
         <p class="date">{{ today }}</p>
+        <div v-if="mapUrl" class="map-btn" @click="openMap">
+          <i class="pi pi-map-marker"></i>
+          <span>Get Directions</span>
+        </div>
       </div>
       <div v-if="imageUrls.length" class="carousel">
         <div class="carousel-track" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
@@ -140,6 +144,11 @@ const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', month: '
 const showRatingModal = ref(false)
 const selectedItem = ref(null)
 const selectedStars = ref(0)
+const mapUrl = ref('')
+
+const openMap = () => {
+  window.open(mapUrl.value, "_blank")
+}
 
 const openRating = (item) => {
   selectedItem.value = item
@@ -172,6 +181,7 @@ onMounted(async () => {
     meals.value = response.data?.meals || []
     messName.value = response.data?.user_name
     imageUrls.value = response.data?.image_urls || []
+    mapUrl.value = response.data?.location?.map_url || ''
   } catch (err) {
     console.error(err)
   } finally {
@@ -522,7 +532,7 @@ body {
   }
 
   .header h1 {
-    font-size: 22px;
+    font-size: 21px;
   }
 
   .item-card {
@@ -558,5 +568,23 @@ body {
 
 .group-title::after {
   right: 0;
+}
+.map-btn {
+  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.map-btn i {
+  font-size: 14px;
 }
 </style>
