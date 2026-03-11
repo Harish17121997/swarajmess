@@ -52,24 +52,13 @@
           + Add Meal
         </button>
 
-        <button :class="['tab-btn', activeTab === 'list' ? 'active-tab' : '']" @click="activeTab = 'list'">
-          📋 Menu List
+        <button :class="['tab-btn', activeTab === 'setting' ? 'active-tab' : '']" @click="activeTab = 'setting'">
+          <i class="pi pi-cog"></i> Settings
         </button>
       </div>
-      <div v-if="activeTab === 'add'">
-        <div class="mess-toggle">
-          <span class="status-text">
-            Mess Status :
-            <b :class="messOpen ? 'open' : 'closed'">
-              {{ messOpen ? 'OPEN' : 'CLOSED' }}
-            </b>
-          </span>
-          <label class="switch">
-            <input type="checkbox" v-model="messOpen" @change="saveMessStatus" :disabled="statusLoading" />
-            <span class="slider"></span>
-          </label>
-        </div>
 
+      <!-- ================= ADD Tabs Content ================= -->
+      <div v-if="activeTab === 'add'">
         <!-- MEAL TYPE -->
         <div class="form-group">
           <label>Meal Type<span style="color: red;"> *</span></label>
@@ -126,41 +115,6 @@
         <p v-if="success" class="success-msg">
           ✔ Menu Saved Successfully
         </p>
-      </div>
-
-      <!-- ================= IMAGE UPLOAD SECTION ================= -->
-      <div v-if="activeTab === 'list'">
-        <div class="image-upload-section">
-          <h3 class="upload-title">Meal Images (Max 3)</h3>
-
-          <!-- Custom File Upload -->
-          <label class="custom-file-upload">
-            <input type="file" accept="image/*" multiple @change="handleImageSelect" />
-            <span>📷 Choose Images</span>
-          </label>
-
-          <!-- Preview -->
-          <div class="preview-grid" v-if="imagePreviews.length">
-            <div v-for="(img, index) in imagePreviews" :key="index" class="preview-box">
-              <img :src="img" />
-              <button class="remove-img-btn" @click="removeImage(index)">✖</button>
-            </div>
-          </div>
-
-          <!-- Upload Button -->
-          <button class="upload-btn" @click="uploadImages" :disabled="imageFiles.length === 0 || uploadingImages">
-            <span v-if="uploadingImages" class="spinner"></span>
-            {{ uploadingImages ? 'Uploading...' : 'Upload Images' }}
-          </button>
-
-          <!-- Uploaded Images -->
-          <div class="uploaded-grid" v-if="uploadedImages.length">
-            <div v-for="(img, index) in uploadedImages" :key="index" class="uploaded-box">
-              <img :src="img" />
-              <button class="remove-img-btn" @click="deleteUploadedImage(img)">✖</button>
-            </div>
-          </div>
-        </div>
 
         <!-- ================= CURRENT MEALS LIST ================= -->
         <div v-if="messOpen" class="current-section">
@@ -272,6 +226,73 @@
         </div>
       </div>
 
+      <!-- ================= Settings tabs ================= -->
+      <div v-if="activeTab === 'setting'">
+        <!-- Mess Status -->
+        <div class="mess-toggle">
+          <span class="status-text">
+            Mess Status :
+            <b :class="messOpen ? 'open' : 'closed'">
+              {{ messOpen ? 'OPEN' : 'CLOSED' }}
+            </b>
+          </span>
+          <label class="switch">
+            <input type="checkbox" v-model="messOpen" @change="saveMessStatus" :disabled="statusLoading" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <!-- Image Upload -->
+        <div class="image-upload-section">
+          <h3 class="upload-title">Meal Images (Max 3)</h3>
+
+          <!-- Custom File Upload -->
+          <label class="custom-file-upload">
+            <input type="file" accept="image/*" multiple @change="handleImageSelect" />
+            <span>📷 Choose Images</span>
+          </label>
+
+          <!-- Preview -->
+          <div class="preview-grid" v-if="imagePreviews.length">
+            <div v-for="(img, index) in imagePreviews" :key="index" class="preview-box">
+              <img :src="img" />
+              <button class="remove-img-btn" @click="removeImage(index)">✖</button>
+            </div>
+          </div>
+
+          <!-- Upload Button -->
+          <button class="upload-btn" @click="uploadImages" :disabled="imageFiles.length === 0 || uploadingImages">
+            <span v-if="uploadingImages" class="spinner"></span>
+            {{ uploadingImages ? 'Uploading...' : 'Upload Images' }}
+          </button>
+
+          <!-- Uploaded Images -->
+          <div class="uploaded-grid" v-if="uploadedImages.length">
+            <div v-for="(img, index) in uploadedImages" :key="index" class="uploaded-box">
+              <img :src="img" />
+              <button class="remove-img-btn" @click="deleteUploadedImage(img)">✖</button>
+            </div>
+          </div>
+        </div>
+        <!-- ================= MAP LOCATION ================= -->
+        <div class="location-section">
+          <h3 class="upload-title">Mess Location</h3>
+
+          <div class="location-buttons">
+            <button class="location-btn primary" @click="getCurrentLocation">
+              📍 Use Current Location
+            </button>
+
+            <button class="location-btn save" @click="saveLocation" :disabled="!latitude || !longitude">
+              Save Location
+            </button>
+          </div>
+
+          <div v-if="latitude && longitude" class="map-preview">
+            <iframe :src="`https://maps.google.com/maps?q=${latitude},${longitude}&z=15&output=embed`" width="100%"
+              height="220" style="border:0" loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -281,7 +302,8 @@ import { useRouter } from 'vue-router'
 import Multiselect from 'vue-multiselect'
 import {
   addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi, deleteMealsByFlagApi,
-  getCurrentMealsApi, softDeleteMealApi, getVisitsApi, uploadMealImagesApi, getMealImagesApi, deleteMealImagesApi
+  getCurrentMealsApi, softDeleteMealApi, getVisitsApi, uploadMealImagesApi, getMealImagesApi, deleteMealImagesApi,
+  updateLocationApi
 } from '@/services/api'
 import { useToast } from "vue-toastification"
 
@@ -309,6 +331,8 @@ const stats = ref({
 })
 const monthlyStats = ref([])
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const latitude = ref(null)
+const longitude = ref(null)
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -486,6 +510,9 @@ async function saveMenu() {
     await addMealApi({ meals: selectedItems })
     toast.success("Menu saved successfully")
     success.value = true
+    setTimeout(() => {
+      success.value = false
+    }, 5000)
     rows.value = [{ selected: null, price: null }]
     mealType.value = null
     menuTitle.value = ""
@@ -508,7 +535,9 @@ async function fetchCurrentMeals() {
   currentLoading.value = true
   try {
     const res = await getCurrentMealsApi()
-    currentMeals.value = res.data
+    currentMeals.value = res.data.meals
+    latitude.value = res.data.location?.latitude
+    longitude.value = res.data.location?.longitude
   } catch (error) {
     toast.error("Failed to fetch current meals")
   } finally {
@@ -608,6 +637,46 @@ async function deleteMealType(flag, typeName) {
   } else {
     deleteMealType.confirming = flag
   }
+}
+
+// map
+function getCurrentLocation() {
+  if (!navigator.geolocation) {
+    toast.error("Geolocation not supported")
+    return
+  }
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+
+      latitude.value = position.coords.latitude
+      longitude.value = position.coords.longitude
+
+      toast.success("Location fetched successfully")
+
+    },
+    () => {
+      toast.error("Failed to get location")
+    }
+  )
+}
+
+async function saveLocation() {
+  if (!latitude.value || !longitude.value) {
+    toast.error("Please select location first")
+    return
+  }
+  try {
+    await updateLocationApi({
+      latitude: latitude.value,
+      longitude: longitude.value
+    })
+
+    toast.success("Location updated successfully")
+
+  } catch (error) {
+    toast.error("Failed to update location")
+  }
+
 }
 
 onMounted(() => {
@@ -1635,5 +1704,76 @@ label {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.25s ease;
+}
+
+/* ===== LOCATION SECTION ===== */
+.location-section {
+  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Button container */
+.location-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Base button */
+.location-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Location button */
+.location-btn.primary {
+  background: #f1f5f9;
+  color: #1e293b;
+  border: 1px dashed #94a3b8;
+}
+
+.location-btn.primary:hover {
+  background: #e0f2fe;
+}
+
+/* Save button */
+.location-btn.save {
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: white;
+}
+
+.location-btn.save:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Map preview */
+.map-preview {
+  margin-top: 14px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 520px) {
+
+  .location-buttons {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .location-btn {
+    width: 100%;
+    height: 46px;
+    font-size: 13px;
+    padding: 10px;
+  }
 }
 </style>

@@ -128,4 +128,11 @@ export const deleteMealsByFlagApi = (flag) => {
     }
   })
 }
+export const updateLocationApi = (data) => {
+  return api.put('/update-location', data, {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
 export default api
