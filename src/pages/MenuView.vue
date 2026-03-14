@@ -172,7 +172,7 @@ const selectedStars = ref(0)
 
 const getDefaultTab = () => {
   const h = new Date().getHours()
-  if (h >= 6 && h < 11) return 'breakfast'
+  if (h >= 3 && h < 11) return 'breakfast'
   if (h >= 11 && h < 18) return 'lunch'
   return 'dinner'
 }
@@ -181,11 +181,11 @@ const activeTab = ref(getDefaultTab())
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long', month: 'short', day: 'numeric'
 })
-
+// need veg thali icon
 const allTabs = [
-  { key: 'breakfast', label: 'Breakfast', icon: '🍳' },
-  { key: 'lunch', label: 'Lunch', icon: '🍛' },
-  { key: 'dinner', label: 'Dinner', icon: '🌙' },
+  { key: 'breakfast', label: 'Breakfast', icon: '🍔' },
+  { key: 'lunch', label: 'Lunch', icon: '🍜' },
+  { key: 'dinner', label: 'Dinner', icon: '🍱'},
 ]
 
 const visibleTabs = computed(() =>
@@ -675,8 +675,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 13px;
-  border-radius: 13px;
+  padding: 10px 15px 9px 18px;
+  border-radius: 22px;
   transition: transform 0.15s;
 }
 
