@@ -185,7 +185,7 @@ const today = new Date().toLocaleDateString('en-IN', {
 const allTabs = [
   { key: 'breakfast', label: 'Breakfast', icon: '🍔' },
   { key: 'lunch', label: 'Lunch', icon: '🍜' },
-  { key: 'dinner', label: 'Dinner', icon: '🍱'},
+  { key: 'dinner', label: 'Dinner', icon: '🍱' },
 ]
 
 const visibleTabs = computed(() =>
@@ -262,9 +262,8 @@ onBeforeUnmount(() => clearInterval(slideInterval))
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* ─── Reset ─── */
 *,
 *::before,
 *::after {
@@ -274,130 +273,86 @@ onBeforeUnmount(() => clearInterval(slideInterval))
 }
 
 button {
+  border: none;
+  background: none;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
-  border: none;
-  outline: none;
 }
 
-/* ════════════════════════════════
-   APP — gradient is always the bg
-   It shows: left+right of sheet,
-   behind tab bar, below sheet
-════════════════════════════════ */
 .app {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0e2142, #6e43d3, #4e2538);
-  /* background: linear-gradient(140deg, #888888, #8361d8, #e74690); */
-  /* background: linear-gradient(140deg, #637fcd, #343337, #c44343); */
-
   font-family: 'Poppins', sans-serif;
   max-width: 480px;
-  margin: 0 auto;
-  -webkit-font-smoothing: antialiased;
+  margin: auto;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fafafa, #eef1f6);
 }
 
-/* ════════════════════════════════
-   HERO
-════════════════════════════════ */
+/* HERO */
+
 .hero {
   position: relative;
-  height: 280px;
-  overflow: hidden;
-}
-
-.hero-carousel {
-  width: 100%;
-  height: 100%;
+  height: 230px;
   overflow: hidden;
 }
 
 .hero-track {
   display: flex;
   height: 100%;
-  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform .6s ease;
 }
 
 .hero-slide {
   flex: 0 0 100%;
-  height: 100%;
 }
 
 .hero-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
-  display: block;
-}
-
-.hero-gradient {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(155deg, #fbc2eb 0%, #a18cd1 50%, #667eea 100%);
 }
 
 .hero-scrim {
   position: absolute;
   inset: 0;
-  z-index: 1;
-  background: linear-gradient(to bottom,
-      rgba(0, 0, 0, 0.55) 0%,
-      rgba(0, 0, 0, 0.00) 36%,
-      rgba(0, 0, 0, 0.00) 46%,
-      rgba(0, 0, 0, 0.68) 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .55), rgba(0, 0, 0, .15), rgba(0, 0, 0, .75));
 }
 
-/* ── Navbar ── */
+/* NAVBAR */
+
 .navbar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 10;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 14px 16px 0;
-  padding-top: max(14px, env(safe-area-inset-top));
+  align-items: center;
+  padding: 14px 16px;
+  /* backdrop-filter:blur(10px); */
+  /* background:rgba(0,0,0,.25); */
+  z-index: 10;
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 9px;
-  min-width: 0;
+  gap: 10px;
 }
 
 .nav-icon {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  flex-shrink: 0;
-}
-
-.nav-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
 }
 
 .nav-label {
-  font-size: 9px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.68);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1;
+  font-size: 10px;
+  color: #ddd;
 }
 
 .nav-name {
@@ -414,99 +369,37 @@ button {
 }
 
 .nav-dir-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 7px 12px;
-  border-radius: 30px;
-  transition: background 0.2s;
+  background: #ff7a18;
+  color: white;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
 }
 
-.nav-dir-btn:active {
-  background: rgba(255, 255, 255, 0.3);
-}
+/* HERO TEXT */
 
-/* ── Hero bottom text ── */
 .hero-bottom {
   position: absolute;
   bottom: 18px;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  padding: 0 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  left: 18px;
+  color: white;
 }
 
 .hero-pill {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.38);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-  padding: 3px 11px;
-  border-radius: 30px;
-  margin-bottom: 5px;
-}
-
-.hero-title {
-  font-size: 28px;
-  font-weight: 900;
-  color: #fff;
-  text-transform: capitalize;
-  line-height: 1.12;
-  letter-spacing: -0.4px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 4px 16px rgba(0, 0, 0, 0.4);
+  font-size: 10px;
+  background: rgba(255, 255, 255, .25);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 6px;
 }
 
 .hero-date {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.76);
-  margin-top: 3px;
+  font-size: 12px;
 }
 
-.hero-dots {
-  display: flex;
-  gap: 5px;
-  margin-top: 9px;
-}
+/* TABS */
 
-.hdot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.hdot.active {
-  background: #fff;
-  width: 18px;
-  border-radius: 3px;
-}
-
-/* ════════════════════════════════
-   TAB BAR
-   Sits directly on the gradient —
-   full width, no padding, no card
-════════════════════════════════ */
 .tab-bar {
   display: flex;
   width: 100%;
@@ -533,106 +426,49 @@ button {
   border: none;
   border-bottom: 3px solid transparent;
   /* inactive: white at 55% opacity on gradient */
-  color: rgba(255, 255, 255, 0.58);
   font-size: 11px;
   font-weight: 700;
   transition: color 0.18s, border-color 0.18s;
   letter-spacing: 0.1px;
 }
 
+
 .tab-btn.active {
-  /* active: full white with bottom indicator */
-  color: #ffffff;
-  border-bottom-color: #ffffff;
+  color: #ff7a18;
 }
 
 .tab-icon {
-  font-size: 19px;
-  line-height: 1;
-  margin-bottom: 3px;
-  display: block;
+  font-size: 20px;
+  margin-bottom: 4px;
 }
 
-.tab-label {
-  font-size: 11px;
-}
+/* CONTENT */
 
-/* ════════════════════════════════
-   SHEET WRAPPER
-   padding: reveals gradient as
-   a frame on left + right sides
-════════════════════════════════ */
 .sheet-wrap {
-  padding: 10px 12px 32px;
-  padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 16px));
+  padding: 14px;
 }
 
 .sheet {
-  background: #ffffff;
+  background: white;
   border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-  min-height: calc(100vh - 380px);
+  /* box-shadow:0 10px 25px rgba(0,0,0,.08); */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/* ─── States ─── */
-.state-box {
-  padding: 52px 20px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.state-icon {
-  font-size: 38px;
-}
-
-.state-txt {
-  font-size: 14px;
-  color: #94a3b8;
-  font-weight: 600;
-}
-
-.state-txt.error {
-  color: #ef4444;
-}
-
-.spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid #e2e8f0;
-  border-top-color: #667eea;
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-  margin-bottom: 6px;
-}
-
-/* ─── Meal Panel ─── */
-.meal-container {
-  display: flex;
-  flex-direction: column;
-}
+/* MEAL PANEL */
 
 .meal-panel {
-  padding: 14px 14px 32px;
+  padding: 16px;
 }
 
 .time-badge {
-  align-items: center;
-  gap: 5px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  text-align: center;
+  font-size: 11px;
   color: #64748b;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: center;
+  margin-bottom: 14px;
 }
+
+/* GROUP TITLE */
 
 /* ─── Group Title ─── */
 .group-title {
@@ -641,7 +477,7 @@ button {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.2px;
-  color: #94a3b8;
+  color: #5f5c5c;
   text-align: center;
   margin: 16px 0 9px;
 }
@@ -664,216 +500,183 @@ button {
   right: 0;
 }
 
-/* ─── Item Cards ─── */
+/* ITEM LIST */
+
 .items {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
+
+/* FOOD CARD */
 
 .item-card {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   padding: 10px 15px 9px 18px;
-  border-radius: 22px;
-  transition: transform 0.15s;
+  border-radius: 16px;
+  background: #f8fafc;
+  transition: .2s;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .05);
 }
 
-/* .item-card:active {
-  transform: scale(0.98);
-} */
+.item-card:active {
+  transform: scale(.97);
+}
+
+/* MEAL COLORS */
 
 .breakfast .item-card {
-  background: linear-gradient(135deg, #fde8b4, #f6c25e);
+  background: linear-gradient(135deg, #fff1c9, #ffe08a);
 }
 
 .lunch .item-card {
-  background: linear-gradient(135deg, #bae6fd, #38bdf8);
+  background: linear-gradient(135deg, #d8f1ff, #a8e0ff);
 }
 
 .dinner .item-card {
-  background: linear-gradient(135deg, #ddd6fe, #a78bfa);
+  background: linear-gradient(135deg, #e8dcff, #c6b5ff);
 }
 
+/* NAME */
+
 .item-name {
-  flex: 1;
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: #1e293b;
-  text-transform: capitalize;
 }
+
+/* RIGHT */
 
 .item-right {
   display: flex;
   align-items: center;
-  gap: 7px;
-  flex-shrink: 0;
+  gap: 8px;
 }
 
+/* RATE BUTTON */
+
 .rate-btn {
-  background: rgba(255, 255, 255, 0.42);
-  border: none;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-size: 13px;
+  background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s;
-  padding: 0;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
 }
 
-.rate-btn:active {
-  transform: scale(1.2);
-}
+/* PRICE */
 
 .item-price {
-  background: rgba(255, 255, 255, 0.38);
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #1e293b;
+  background: #fff;
+  color: #111;
+  ;
+  font-size: 12px;
+  font-weight: 600;
   padding: 3px 9px;
   border-radius: 20px;
-  white-space: nowrap;
 }
 
-/* ─── Rating Modal ─── */
-.modal-bg {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.46);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 1000;
-  padding-bottom: env(safe-area-inset-bottom);
-}
+/* LOADING */
 
-.modal-box {
-  background: #fff;
-  border-radius: 26px 26px 0 0;
-  padding: 14px 26px 36px;
-  width: 100%;
-  max-width: 480px;
+.state-box {
+  padding: 60px 20px;
   text-align: center;
 }
 
-.modal-box::before {
-  content: '';
-  display: block;
-  width: 38px;
-  height: 4px;
-  background: #e2e8f0;
-  border-radius: 2px;
-  margin: 0 auto 22px;
+.state-txt {
+  font-size: 14px;
+  color: #64748b;
 }
 
-.modal-title {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  color: #94a3b8;
-  margin-bottom: 6px;
+.state-txt.error {
+  color: #ef4444;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #ff7a18;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg)
+  }
+}
+
+/* MODAL */
+
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-box {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  border-radius: 22px 22px 0 0;
+  padding: 24px;
+  text-align: center;
 }
 
 .modal-item-name {
   font-size: 20px;
-  font-weight: 900;
-  color: #1e293b;
-  text-transform: capitalize;
-  margin-bottom: 20px;
-  line-height: 1.2;
+  font-weight: 700;
+  margin-bottom: 18px;
 }
 
 .stars {
   display: flex;
   justify-content: center;
   gap: 8px;
-  font-size: 36px;
-  margin-bottom: 20px;
+  font-size: 34px;
 }
 
 .star {
-  cursor: pointer;
-  color: #e2e8f0;
-  transition: color 0.15s, transform 0.15s;
+  color: #ddd;
 }
 
 .star.active {
   color: #fbbf24;
 }
 
-.star:active {
-  transform: scale(1.18);
-}
-
 .submit-btn {
+  margin-top: 18px;
   width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-  box-shadow: 0 8px 22px rgba(102, 126, 234, 0.38);
-  transition: opacity 0.2s;
-}
-
-.submit-btn:active:not(:disabled) {
-  opacity: 0.86;
-}
-
-.submit-btn:disabled {
-  background: #e2e8f0;
-  color: #94a3b8;
-  box-shadow: none;
-  cursor: not-allowed;
+  padding: 13px;
+  border-radius: 10px;
+  background: #ff7a18;
+  color: white;
+  font-weight: 700;
 }
 
 .cancel-btn {
-  display: block;
-  width: 100%;
-  margin-top: 11px;
-  background: none;
+  margin-top: 10px;
   color: #ef4444;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 6px;
+  font-weight: 600;
 }
 
-/* ─── Modal Transition ─── */
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.22s ease;
+.nav-text {
+  display: flex;
+  flex-direction: column;
 }
 
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .modal-box,
-.modal-leave-active .modal-box {
-  transition: transform 0.26s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.modal-enter-from .modal-box {
-  transform: translateY(100%);
-}
-
-.modal-leave-to .modal-box {
-  transform: translateY(100%);
-}
-
-/* ─── Keyframes ─── */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.tab-btn.active[data-v-a35968e3] {
+  color: #ff420b;
+  border-bottom-color: #53bcd6;
 }
 </style>
