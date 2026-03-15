@@ -329,7 +329,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 16px;
+  padding: 13px 15px;
   /* backdrop-filter:blur(10px); */
   /* background:rgba(0,0,0,.25); */
   z-index: 10;
@@ -453,8 +453,8 @@ button {
 /* CONTENT */
 
 .sheet-wrap {
-  padding: 14px;
-      background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81);
+  padding: 13px;
+  background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81);
 }
 
 .sheet {
