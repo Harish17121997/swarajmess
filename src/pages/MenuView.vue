@@ -285,6 +285,7 @@ button {
   margin: auto;
   min-height: 100vh;
   background: linear-gradient(180deg, #fafafa, #eef1f6);
+  /* background: linear-gradient(135deg, #0e2142, #6e43d3, #4e2538); */
 }
 
 /* HERO */
@@ -426,6 +427,7 @@ button {
   border: none;
   border-bottom: 3px solid transparent;
   /* inactive: white at 55% opacity on gradient */
+  /* color: rgba(255, 255, 255, 0.58); */
   font-size: 11px;
   font-weight: 700;
   transition: color 0.18s, border-color 0.18s;
@@ -435,20 +437,23 @@ button {
   color: #ff420b;
   border-bottom-color: #5fc2db;
 }
-.tab-btn.active[data-v-a35968e3] {
-  color: #ff420b;
-  border-bottom-color: #5fc2db;
-}
 
 .tab-icon {
-  font-size: 20px;
-  margin-bottom: 4px;
+  font-size: 19px;
+  line-height: 1;
+  margin-bottom: 3px;
+  display: block;
+}
+
+.tab-label {
+  font-size: 11px;
 }
 
 /* CONTENT */
 
 .sheet-wrap {
   padding: 14px;
+  /* background: linear-gradient(135deg, #0e2142, #6e43d3, #4e2538); */
 }
 
 .sheet {
