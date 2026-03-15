@@ -285,6 +285,7 @@ button {
   margin: auto;
   min-height: 100vh;
   background: linear-gradient(180deg, #fafafa, #eef1f6);
+  /* background: linear-gradient(135deg, #0f172a, #1e293b, #334155); */
   /* background: linear-gradient(135deg, #0e2142, #6e43d3, #4e2538); */
 }
 
@@ -453,7 +454,7 @@ button {
 
 .sheet-wrap {
   padding: 14px;
-  /* background: linear-gradient(135deg, #0e2142, #6e43d3, #4e2538); */
+      background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81);
 }
 
 .sheet {
