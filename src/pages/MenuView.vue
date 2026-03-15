@@ -432,11 +432,6 @@ button {
   letter-spacing: 0.1px;
 }
 
-
-.tab-btn.active {
-  color: #ff7a18;
-}
-
 .tab-icon {
   font-size: 20px;
   margin-bottom: 4px;
