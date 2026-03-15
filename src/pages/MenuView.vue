@@ -431,6 +431,14 @@ button {
   transition: color 0.18s, border-color 0.18s;
   letter-spacing: 0.1px;
 }
+.tab-btn.active {
+  color: #ff420b;
+  border-bottom-color: #5fc2db;
+}
+.tab-btn.active[data-v-a35968e3] {
+  color: #ff420b;
+  border-bottom-color: #5fc2db;
+}
 
 .tab-icon {
   font-size: 20px;
