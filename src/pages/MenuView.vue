@@ -677,6 +677,6 @@ button {
 
 .tab-btn.active[data-v-a35968e3] {
   color: #ff420b;
-  border-bottom-color: #53bcd6;
+  border-bottom-color: #5fc2db;
 }
 </style>
