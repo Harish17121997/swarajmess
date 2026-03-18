@@ -118,112 +118,104 @@
 
         <!-- ================= CURRENT MEALS LIST ================= -->
         <div v-if="messOpen" class="current-section">
-          <h3> Today's Menu <p class="date">{{ today }}</p>
-          </h3>
+        <h3>Today's Menu <span class="date">{{ today }}</span></h3>
 
-          <div v-if="currentLoading" class="loading-text">
-            Loading meals...
-          </div>
-
-          <!-- BREAKFAST -->
-          <div v-if="Object.keys(groupedMeals.breakfast).length" class="meal-block">
-            <div class="meal-heading">
-              <h4>🌅 Breakfast</h4>
-              <button class="delete-type-btn" @click="deleteMealType(0, 'Breakfast')">
-                Delete All
-              </button>
-            </div>
-
-            <div v-for="(meals, title) in groupedMeals.breakfast" :key="title">
-
-              <!-- Show Title Only If Not General -->
-              <div v-if="title !== 'General'" class="group-title">
-                {{ title }}
-              </div>
-
-              <div class="meal-item" v-for="meal in meals" :key="meal.id">
-                <div class="meal-left">
-                  <span class="meal-name">{{ meal.meal_name }}</span>
-                </div>
-
-                <div class="meal-right">
-                  <span v-if="meal.meal_price > 0" class="price">
-                    ₹{{ meal.meal_price }}
-                  </span>
-
-                  <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- LUNCH -->
-          <div v-if="Object.keys(groupedMeals.lunch).length" class="meal-block">
-            <div class="meal-heading">
-              <h4>🍛 Lunch</h4>
-              <button class="delete-type-btn" @click="deleteMealType(1, 'Breakfast')">
-                Delete All
-              </button>
-            </div>
-
-            <div v-for="(meals, title) in groupedMeals.lunch" :key="title">
-
-              <div v-if="title !== 'General'" class="group-title">
-                {{ title }}
-              </div>
-
-              <div class="meal-item" v-for="meal in meals" :key="meal.id">
-                <div class="meal-left">
-                  <span class="meal-name">{{ meal.meal_name }}</span>
-                </div>
-
-                <div class="meal-right">
-                  <span v-if="meal.meal_price > 0" class="price">
-                    ₹{{ meal.meal_price }}
-                  </span>
-
-                  <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- DINNER -->
-          <div v-if="Object.keys(groupedMeals.dinner).length" class="meal-block">
-            <div class="meal-heading">
-              <h4>🌙 Dinner</h4>
-              <button class="delete-type-btn" @click="deleteMealType(2, 'Breakfast')">
-                Delete All
-              </button>
-            </div>
-
-            <div v-for="(meals, title) in groupedMeals.dinner" :key="title" class="title-group">
-
-              <!-- Show Title Only If Exists -->
-              <div v-if="title !== 'General'" class="group-title">
-                {{ title }}
-              </div>
-
-              <!-- Items Under Title -->
-              <div class="meal-item" v-for="meal in meals" :key="meal.id">
-                <div class="meal-left">
-                  <span class="meal-name">{{ meal.meal_name }}</span>
-                </div>
-
-                <div class="meal-right">
-                  <span v-if="meal.meal_price > 0" class="price">
-                    ₹{{ meal.meal_price }}
-                  </span>
-
-                  <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
-                </div>
-              </div>
-
-            </div>
-          </div>
+        <!-- Mini Tab Bar -->
+        <div class="mini-tabs">
+          <button
+            v-for="tab in [
+              { key: 'breakfast', label: '🌅 Breakfast' },
+              { key: 'lunch',     label: '🍛 Lunch'     },
+              { key: 'dinner',    label: '🌙 Dinner'    },
+            ]"
+            :key="tab.key"
+            class="mini-tab"
+            :class="{ 'mini-tab-active': currentMealTab === tab.key }"
+            @click="currentMealTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
         </div>
+
+        <div v-if="currentLoading" class="loading-text">Loading meals...</div>
+
+        <template v-else>
+          <!-- Breakfast Panel -->
+          <div v-show="currentMealTab === 'breakfast'">
+            <div v-if="!Object.keys(groupedMeals.breakfast).length" class="empty-tab">
+              No breakfast items today
+            </div>
+            <div v-else>
+              <div class="meal-heading">
+                <h4>🌅 Breakfast</h4>
+                <button class="delete-type-btn" @click="deleteMealType(0, 'Breakfast')">Delete All</button>
+              </div>
+              <div v-for="(meals, title) in groupedMeals.breakfast" :key="title">
+                <div v-if="title !== 'General'" class="group-title">{{ title }}</div>
+                <div class="meal-item" v-for="meal in meals" :key="meal.id">
+                  <div class="meal-left">
+                    <span class="meal-name">{{ meal.meal_name }}</span>
+                  </div>
+                  <div class="meal-right">
+                    <span v-if="meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
+                    <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lunch Panel -->
+          <div v-show="currentMealTab === 'lunch'">
+            <div v-if="!Object.keys(groupedMeals.lunch).length" class="empty-tab">
+              No lunch items today
+            </div>
+            <div v-else>
+              <div class="meal-heading">
+                <h4>🍛 Lunch</h4>
+                <button class="delete-type-btn" @click="deleteMealType(1, 'Lunch')">Delete All</button>
+              </div>
+              <div v-for="(meals, title) in groupedMeals.lunch" :key="title">
+                <div v-if="title !== 'General'" class="group-title">{{ title }}</div>
+                <div class="meal-item" v-for="meal in meals" :key="meal.id">
+                  <div class="meal-left">
+                    <span class="meal-name">{{ meal.meal_name }}</span>
+                  </div>
+                  <div class="meal-right">
+                    <span v-if="meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
+                    <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dinner Panel -->
+          <div v-show="currentMealTab === 'dinner'">
+            <div v-if="!Object.keys(groupedMeals.dinner).length" class="empty-tab">
+              No dinner items today
+            </div>
+            <div v-else>
+              <div class="meal-heading">
+                <h4>🌙 Dinner</h4>
+                <button class="delete-type-btn" @click="deleteMealType(2, 'Dinner')">Delete All</button>
+              </div>
+              <div v-for="(meals, title) in groupedMeals.dinner" :key="title">
+                <div v-if="title !== 'General'" class="group-title">{{ title }}</div>
+                <div class="meal-item" v-for="meal in meals" :key="meal.id">
+                  <div class="meal-left">
+                    <span class="meal-name">{{ meal.meal_name }}</span>
+                  </div>
+                  <div class="meal-right">
+                    <span v-if="meal.meal_price > 0" class="price">₹{{ meal.meal_price }}</span>
+                    <i class="pi pi-trash delete-icon" @click="deleteCurrentMeal(meal.id)"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
       </div>
 
       <!-- ================= Settings tabs ================= -->
@@ -333,6 +325,7 @@ const monthlyStats = ref([])
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 const latitude = ref(null)
 const longitude = ref(null)
+const currentMealTab = ref('breakfast')
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -1759,7 +1752,48 @@ label {
   border-radius: 14px;
   overflow: hidden;
 }
+/* ===== MINI TABS (Today's Menu) ===== */
+.mini-tabs {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+}
 
+.mini-tab {
+  flex: 1;
+  height: 36px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mini-tab:hover {
+  color: #0ea5e9;
+}
+
+.mini-tab-active {
+  background: white;
+  color: #0ea5e9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.empty-tab {
+  text-align: center;
+  padding: 28px 0;
+  color: #94a3b8;
+  font-size: 13px;
+  font-style: italic;
+}
 /* ===== MOBILE ===== */
 
 @media (max-width: 520px) {
