@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AdminLogin from './pages/AdminLogin.vue'
 import AdminDashboard from './pages/AdminDashboard.vue'
 import MenuView from './pages/MenuView.vue'
+import Demo from './pages/Demo.vue' 
 
 const routes = [
   {
@@ -21,6 +22,11 @@ const routes = [
     name: 'AdminDashboard',
     component: AdminDashboard,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/demo',
+    name: 'Demotest',
+    component: Demo
   }
 ]
 

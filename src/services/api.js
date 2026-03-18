@@ -135,4 +135,7 @@ export const updateLocationApi = (data) => {
     }
   })
 }
+export const placeOrderApi = (data) => {
+  return api.post('/place-order', data)
+}
 export default api
