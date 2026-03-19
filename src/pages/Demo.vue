@@ -217,8 +217,8 @@
         <!-- App logos hint -->
         <div class="app-hints">
           <span class="hint-label">Works with</span>
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/PhonePe_Logo.png/800px-PhonePe_Logo.png" class="hint-img" alt="PhonePe" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/800px-Google_Pay_Logo.svg.png" class="hint-img" alt="GPay" />
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s" class="hint-img" alt="PhonePe" />
+          <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png" class="hint-img" alt="GPay" />
           <span class="hint-more">+ all UPI apps</span>
         </div>
 
