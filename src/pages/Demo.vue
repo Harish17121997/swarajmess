@@ -651,7 +651,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .tab-label { font-size: 11px; }
 
 /* SHEET */
-.sheet-wrap { padding: 13px; background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81); }
+.sheet-wrap { padding: 13px; background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81); min-height: 65vh; }
 .sheet {
   background: white; border-radius: 20px;
   box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6);
