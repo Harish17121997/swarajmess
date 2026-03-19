@@ -216,7 +216,7 @@
         </div>
 
         <!-- Step guide -->
-        <div class="steps-box">
+        <!-- <div class="steps-box">
           <div class="step">
             <span class="step-num">1</span>
             <span class="step-txt">Open PhonePe or Google Pay on your phone</span>
@@ -233,7 +233,7 @@
             <span class="step-num">4</span>
             <span class="step-txt">Confirm ₹{{ cartTotal }} and tap Pay</span>
           </div>
-        </div>
+        </div> -->
 
         <!-- UPI ID copy fallback -->
         <div v-if="upiId" class="upi-id-row">
