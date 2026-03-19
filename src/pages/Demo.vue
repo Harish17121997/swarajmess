@@ -196,66 +196,50 @@
           </div>
         </div>
 
-        <!-- Section 1: Pay with amount pre-filled -->
-        <p class="section-label">Pay directly — amount pre-filled</p>
-        <div class="upi-list">
+        <!-- ── Big Pay Button ── -->
+        <p class="section-label">Pay via UPI</p>
 
-          <button class="upi-btn phonepe-btn" @click="payWith('phonepe')">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s"
-              class="app-img" alt="PhonePe" />
-            <div class="upi-info">
-              <span class="upi-name">PhonePe</span>
-              <span class="upi-desc">Opens with ₹{{ cartTotal }} pre-filled</span>
+        <button class="big-pay-btn" @click="payNow">
+          <div class="big-pay-left">
+            <div class="big-pay-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
+                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-6-3h-1v-2h1c.55 0 1-.45 1-1s-.45-1-1-1h-2v5h1v-1h1c1.1 0 2-.9 2-2s-.9-2-2-2z"/>
+              </svg>
             </div>
-            <span class="upi-arrow">›</span>
-          </button>
+            <div>
+              <span class="big-pay-title">Pay ₹{{ cartTotal }}</span>
+              <span class="big-pay-sub">Opens UPI app chooser on your phone</span>
+            </div>
+          </div>
+          <span class="big-pay-arrow">›</span>
+        </button>
 
-          <button class="upi-btn gpay-btn" @click="payWith('gpay')">
-            <img
-              src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png"
-              class="app-img" alt="Google Pay" />
-            <div class="upi-info">
-              <span class="upi-name">Google Pay</span>
-              <span class="upi-desc">Opens with ₹{{ cartTotal }} pre-filled</span>
-            </div>
-            <span class="upi-arrow">›</span>
-          </button>
+        <!-- App logos hint -->
+        <div class="app-hints">
+          <span class="hint-label">Works with</span>
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/PhonePe_Logo.png/800px-PhonePe_Logo.png" class="hint-img" alt="PhonePe" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/800px-Google_Pay_Logo.svg.png" class="hint-img" alt="GPay" />
+          <span class="hint-more">+ all UPI apps</span>
         </div>
 
         <!-- OR divider -->
         <div class="or-divider"><span>or scan admin's QR code</span></div>
 
-        <!-- Section 2: Open scanner in app -->
-        <p class="section-label">Open QR scanner in app</p>
-        <div class="scanner-list">
+        <!-- ── Scan QR button ── -->
+        <p class="section-label">Scan & Pay</p>
 
-          <button class="scanner-btn phonepe-scan" @click="openScanner('phonepe')">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s"
-              class="app-img" alt="PhonePe" />
-            <div class="upi-info">
-              <span class="upi-name">PhonePe Scanner</span>
-              <span class="upi-desc">Opens PhonePe → tap Scan QR inside</span>
-            </div>
-            <svg class="scan-qr-icon" viewBox="0 0 24 24" fill="#94a3b8">
+        <button class="scan-btn" @click="scanQR">
+          <div class="scan-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
               <path d="M3 3h7v7H3zm1 1v5h5V4zm1 1h3v3H5zm8-2h7v7h-7zm1 1v5h5V4zm1 1h3v3h-3zM3 13h7v7H3zm1 1v5h5v-5zm1 1h3v3H5zm8 0h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm-2 2h2v2h-2zm2 2h2v2h-2z"/>
             </svg>
-          </button>
-
-          <button class="scanner-btn gpay-scan" @click="openScanner('gpay')">
-            <img
-              src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png"
-              class="app-img" alt="Google Pay" />
-            <div class="upi-info">
-              <span class="upi-name">GPay Scanner</span>
-              <span class="upi-desc">Opens Google Pay → tap Scan QR inside</span>
-            </div>
-            <svg class="scan-qr-icon" viewBox="0 0 24 24" fill="#94a3b8">
-              <path d="M3 3h7v7H3zm1 1v5h5V4zm1 1h3v3H5zm8-2h7v7h-7zm1 1v5h5V4zm1 1h3v3h-3zM3 13h7v7H3zm1 1v5h5v-5zm1 1h3v3H5zm8 0h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm-2 2h2v2h-2zm2 2h2v2h-2z"/>
-            </svg>
-          </button>
-        </div>
+          </div>
+          <div class="scan-info">
+            <span class="scan-title">Open UPI scanner</span>
+            <span class="scan-desc">Phone shows app chooser → tap scan in app → point at QR</span>
+          </div>
+          <span class="big-pay-arrow">›</span>
+        </button>
 
         <!-- UPI ID copy row -->
         <div v-if="upiId" class="upi-id-row">
@@ -381,59 +365,30 @@ const openPaySheet = () => {
   showPaySheet.value = true
 }
 
-// ── Pay with amount pre-filled — fires deep link ──
-const payWith = (app) => {
+const fireUpiLink = (link) => {
+  const a = document.createElement('a')
+  a.href  = link
+  a.click()
+}
+
+// Pay with amount pre-filled — generic upi:// avoids app-specific security blocks
+const payNow = () => {
   const amount = cartTotal.value.toFixed(2)
   const id     = upiId.value.trim()
   const name   = encodeURIComponent(messName.value || 'Mess Payment')
   const note   = encodeURIComponent('Meal order')
-
-  const links = {
-    phonepe: `phonepe://pay?pa=${id}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
-    gpay:    `tez://upi/pay?pa=${id}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
-    upi:     `upi://pay?pa=${id}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
-  }
-
-  const a = document.createElement('a')
-  a.href  = links[app] || links.upi
-  a.click()
-
-  // Fallback to generic UPI after 1.8s if specific app not installed
-  if (app !== 'upi') {
-    setTimeout(() => {
-      const fb = document.createElement('a')
-      fb.href  = links.upi
-      fb.click()
-    }, 1800)
-  }
+  fireUpiLink(`upi://pay?pa=${id}&pn=${name}&am=${amount}&cu=INR&tn=${note}`)
 }
 
-// ── Open app for QR scan (no amount — QR sets it) ──
-const openScanner = (app) => {
+// Open UPI app for QR scan — no amount, QR sets it
+const scanQR = () => {
   const id   = upiId.value.trim()
   const name = encodeURIComponent(messName.value || 'Mess Payment')
   const note = encodeURIComponent('Meal order')
-
-  const links = {
-    phonepe: `phonepe://pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`,
-    gpay:    `tez://upi/pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`,
-    upi:     `upi://pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`,
-  }
-
-  const a = document.createElement('a')
-  a.href  = links[app] || links.upi
-  a.click()
-
-  if (app !== 'upi') {
-    setTimeout(() => {
-      const fb = document.createElement('a')
-      fb.href  = links.upi
-      fb.click()
-    }, 1800)
-  }
+  fireUpiLink(`upi://pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`)
 }
 
-// ── Copy UPI ID to clipboard ──
+// Copy UPI ID to clipboard
 const copyUpiId = async () => {
   try {
     await navigator.clipboard.writeText(upiId.value)
@@ -513,7 +468,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 
 .app { font-family: 'Poppins', sans-serif; max-width: 480px; margin: auto; min-height: 100vh; background: linear-gradient(180deg, #fafafa, #eef1f6); }
 
-/* ── HERO ── */
+/* HERO */
 .hero { position: relative; height: 230px; overflow: hidden; }
 .hero-track { display: flex; height: 100%; transition: transform .6s ease; }
 .hero-slide { flex: 0 0 100%; }
@@ -534,14 +489,14 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .hdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.4); cursor: pointer; transition: .2s; }
 .hdot.active { background: white; width: 16px; border-radius: 3px; }
 
-/* ── TAB BAR ── */
+/* TAB BAR */
 .tab-bar { display: flex; width: 100%; background: rgba(255,255,255,.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,.2); position: sticky; top: 0; box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6); z-index: 30; }
 .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 11px 4px 10px; background: transparent; border: none; border-bottom: 3px solid transparent; font-size: 11px; font-weight: 700; transition: color .18s, border-color .18s; letter-spacing: .1px; }
 .tab-btn.active { color: #ff420b; border-bottom-color: #5fc2db; }
 .tab-icon { font-size: 19px; line-height: 1; margin-bottom: 3px; display: block; }
 .tab-label { font-size: 11px; }
 
-/* ── SHEET ── */
+/* SHEET */
 .sheet-wrap { padding: 13px; background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81); min-height: 50vh; }
 .sheet { background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6); }
 .meal-panel { padding: 16px; }
@@ -551,7 +506,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .group-title::before { left: 0; }
 .group-title::after  { right: 0; }
 
-/* ── ITEMS ── */
+/* ITEMS */
 .items { display: flex; flex-direction: column; gap: 10px; }
 .item-card { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px 9px 18px; border-radius: 16px; background: #f8fafc; transition: .2s; box-shadow: 0 3px 8px rgba(0,0,0,.05); cursor: pointer; }
 .item-card:active { transform: scale(.97); }
@@ -567,7 +522,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .qty-btn { width: 22px; height: 22px; border-radius: 50%; background: #ff7a18; color: white; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1; border: none; cursor: pointer; }
 .qty-num { font-size: 13px; font-weight: 700; min-width: 16px; text-align: center; color: #1e293b; }
 
-/* ── STATES ── */
+/* STATES */
 .state-box { padding: 60px 20px; text-align: center; }
 .state-icon { font-size: 40px; margin-bottom: 12px; }
 .state-txt { font-size: 14px; color: #64748b; }
@@ -575,12 +530,12 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .spinner { width: 30px; height: 30px; border: 3px solid #e5e7eb; border-top-color: #ff7a18; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
 @keyframes spin { to { transform: rotate(360deg) } }
 
-/* ── MODAL ── */
+/* MODAL */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: flex-end; justify-content: center; z-index: 200; }
 .modal-enter-active, .modal-leave-active { transition: opacity .25s ease; }
 .modal-enter-from, .modal-leave-to { opacity: 0; }
 
-/* ── RATING ── */
+/* RATING */
 .modal-box { width: 100%; max-width: 480px; background: white; border-radius: 22px 22px 0 0; padding: 24px; text-align: center; }
 .modal-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
 .modal-item-name { font-size: 20px; font-weight: 700; margin-bottom: 18px; color: #0f172a; }
@@ -591,7 +546,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
 .cancel-btn { margin-top: 10px; color: #ef4444; font-weight: 600; }
 
-/* ── CART BAR ── */
+/* CART BAR */
 .cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; background: #1e293b; border-radius: 20px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,.28); }
 .cart-left { display: flex; align-items: center; gap: 6px; }
 .cart-badge { background: #ff7a18; color: white; font-size: 11px; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
@@ -602,7 +557,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .slide-up-enter-active, .slide-up-leave-active { transition: transform .3s ease, opacity .3s ease; }
 .slide-up-enter-from, .slide-up-leave-to { transform: translateX(-50%) translateY(80px); opacity: 0; }
 
-/* ── PAYMENT SHEET ── */
+/* PAYMENT SHEET */
 .pay-sheet { width: 100%; max-width: 480px; background: white; border-radius: 26px 26px 0 0; padding: 12px 18px 36px; max-height: 92vh; overflow-y: auto; }
 .pay-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 16px; }
 .pay-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
@@ -610,52 +565,49 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .pay-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
 .pay-close { width: 30px; height: 30px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 13px; display: flex; align-items: center; justify-content: center; }
 
-/* ── SUMMARY ── */
+/* SUMMARY */
 .pay-summary { background: #f8fafc; border-radius: 14px; padding: 10px 14px; margin-bottom: 16px; }
 .pay-row { display: flex; justify-content: space-between; font-size: 13px; color: #475569; padding: 4px 0; }
 .pay-row-name { font-weight: 500; }
 .pay-row-amt { font-weight: 600; color: #334155; }
 .total-row { border-top: 1px solid #e2e8f0; margin-top: 6px; padding-top: 8px; font-size: 14px; font-weight: 700; color: #0f172a; }
 
-/* ── SECTION LABEL ── */
+/* SECTION LABEL */
 .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; margin-bottom: 10px; display: block; }
 
-/* ── APP IMAGE ── */
-.app-img { width: 36px; height: 36px; border-radius: 10px; object-fit: contain; flex-shrink: 0; background: white; }
+/* BIG PAY BUTTON */
+.big-pay-btn { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 16px; background: linear-gradient(135deg, #7c3aed, #5b21b6); border: none; cursor: pointer; transition: transform .15s; margin-bottom: 12px; }
+.big-pay-btn:active { transform: scale(.98); }
+.big-pay-left { display: flex; align-items: center; gap: 12px; }
+.big-pay-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.big-pay-title { display: block; font-size: 15px; font-weight: 700; color: white; }
+.big-pay-sub { display: block; font-size: 11px; color: rgba(255,255,255,.65); margin-top: 2px; }
+.big-pay-arrow { font-size: 22px; color: rgba(255,255,255,.5); }
 
-/* ── UPI BUTTONS ── */
-.upi-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
-.upi-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; background: white; }
-.upi-btn:active { transform: scale(.97); }
-.phonepe-btn { background: #f5f0ff; border-color: #c4b5fd; }
-.gpay-btn    { background: #ffffff; border-color: #86efac; }
-.other-btn   { background: #f8fafc; border-color: #e2e8f0; }
-.upi-logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
-.other-logo { background: #64748b; color: white; }
-.upi-info { flex: 1; display: flex; flex-direction: column; gap: 1px; }
-.upi-name { font-size: 13px; font-weight: 700; color: #0f172a; }
-.upi-desc { font-size: 11px; color: #64748b; }
-.upi-arrow { font-size: 20px; color: #cbd5e1; }
+/* APP HINTS */
+.app-hints { display: flex; align-items: center; gap: 8px; padding: 0 2px; margin-bottom: 4px; }
+.hint-label { font-size: 11px; color: #94a3b8; }
+.hint-img { width: 22px; height: 22px; border-radius: 6px; object-fit: contain; background: white; }
+.hint-more { font-size: 11px; color: #94a3b8; }
 
-/* ── OR DIVIDER ── */
+/* OR DIVIDER */
 .or-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0 14px; }
 .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
 .or-divider span { font-size: 11px; color: #94a3b8; font-weight: 600; white-space: nowrap; }
 
-/* ── SCANNER BUTTONS ── */
-.scanner-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.scanner-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; }
-.scanner-btn:active { transform: scale(.97); }
-.phonepe-scan { background: #f5f0ff; border-color: #c4b5fd; }
-.gpay-scan    { background: #ffffff; border-color: #86efac; }
-.other-scan   { background: #f8fafc; border-color: #e2e8f0; }
-.scan-qr-icon { width: 18px; height: 18px; flex-shrink: 0; }
+/* SCAN BUTTON */
+.scan-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 14px; background: #0f172a; border: none; cursor: pointer; transition: transform .15s; text-align: left; margin-bottom: 14px; }
+.scan-btn:active { transform: scale(.98); }
+.scan-icon-wrap { width: 40px; height: 40px; border-radius: 11px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.scan-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.scan-title { font-size: 14px; font-weight: 700; color: white; }
+.scan-desc { font-size: 11px; color: rgba(255,255,255,.5); }
 
-/* ── UPI ID ROW ── */
+/* UPI ID ROW */
 .upi-id-row { display: flex; align-items: center; gap: 8px; background: #f8fafc; border-radius: 12px; padding: 10px 14px; margin-bottom: 4px; }
 .upi-id-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; flex-shrink: 0; }
 .upi-id-val { flex: 1; font-size: 13px; font-weight: 600; color: #0f172a; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.copy-btn { font-size: 11px; font-weight: 700; color: #7c3aed; background: #ede9fe; border: none; border-radius: 8px; padding: 4px 10px; cursor: pointer; flex-shrink: 0; font-family: 'Poppins', sans-serif; transition: background .15s; }
+.copy-btn { font-size: 11px; font-weight: 700; color: #7c3aed; background: #ede9fe; border: none; border-radius: 8px; padding: 4px 10px; cursor: pointer; flex-shrink: 0; font-family: 'Poppins', sans-serif; }
 .copy-btn:active { background: #ddd6fe; }
 
 .pay-secure { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 14px; }
