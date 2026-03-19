@@ -284,7 +284,67 @@
               height="220" style="border:0" loading="lazy"></iframe>
           </div>
         </div>
+        <!-- ================= UPI ID ================= -->
+        <div class="upi-section">
+          <h3 class="upload-title">UPI Payment ID</h3>
+          <p class="upi-desc-text">
+            Customers will use this UPI ID to pay via PhonePe, GPay, or any UPI app.
+          </p>
+
+          <div class="upi-input-row">
+            <div class="upi-input-wrap">
+              <span class="upi-prefix">UPI</span>
+              <input
+                v-model="upiId"
+                type="text"
+                class="upi-input"
+                placeholder="yourname@upi or 9876543210@ybl"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <button class="upi-save-btn" @click="confirmUpiSave" :disabled="upiSaving || !upiId.trim()">
+            <span v-if="upiSaving" class="spinner"></span>
+            {{ upiSaving ? 'Saving...' : '💾 Save UPI ID' }}
+          </button>
+
+          <!-- Preview how it will look to customer -->
+          <div v-if="upiId.trim()" class="upi-preview">
+            <p class="upi-preview-label">Preview — how customers see it</p>
+            <div class="upi-preview-card">
+              <div class="upi-preview-left">
+                <div class="upi-preview-icon">₹</div>
+                <div>
+                  <p class="upi-preview-name">{{ messName || 'Your Mess' }}</p>
+                  <p class="upi-preview-id">{{ upiId }}</p>
+                </div>
+              </div>
+              <div class="upi-preview-apps">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s" alt="PhonePe logo" class="app-pill phonepe">
+                <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png" alt="PhonePe logo" class="app-pill gpay">
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      <!-- ═══ UPI CONFIRM DIALOG ═══ -->
+      <Transition name="modal-fade">
+        <div v-if="showUpiConfirm" class="confirm-overlay" @click.self="showUpiConfirm = false">
+          <div class="confirm-box">
+            <div class="confirm-icon">⚠️</div>
+            <p class="confirm-title">Update UPI ID?</p>
+            <p class="confirm-msg">
+              You are setting <strong>{{ upiId }}</strong> as your payment UPI ID.
+              Customers will send money to this ID. Make sure it is correct.
+            </p>
+            <div class="confirm-actions">
+              <button class="confirm-cancel" @click="showUpiConfirm = false">Cancel</button>
+              <button class="confirm-yes" @click="saveUpiId">Yes, Save</button>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -295,7 +355,7 @@ import Multiselect from 'vue-multiselect'
 import {
   addMealApi, updateUserStatusApi, getUserStatusApi, getMealsApi, deleteMealApi, deleteMealsByFlagApi,
   getCurrentMealsApi, softDeleteMealApi, getVisitsApi, uploadMealImagesApi, getMealImagesApi, deleteMealImagesApi,
-  updateLocationApi
+  updateLocationApi, updateUpiApi
 } from '@/services/api'
 import { useToast } from "vue-toastification"
 
@@ -326,6 +386,10 @@ const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep
 const latitude = ref(null)
 const longitude = ref(null)
 const currentMealTab = ref('breakfast')
+const showUpiConfirm = ref(false)
+// upi id
+const upiId        = ref('')
+const upiSaving    = ref(false)
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
   weekday: 'long',
@@ -531,6 +595,7 @@ async function fetchCurrentMeals() {
     currentMeals.value = res.data.meals
     latitude.value = res.data.location?.latitude
     longitude.value = res.data.location?.longitude
+    upiId.value = res.data?.upi_id
   } catch (error) {
     toast.error("Failed to fetch current meals")
   } finally {
@@ -671,7 +736,30 @@ async function saveLocation() {
   }
 
 }
-
+// upi id
+function confirmUpiSave() {
+  if (!upiId.value.trim()) {
+    toast.error('Please enter a UPI ID')
+    return
+  }
+  showUpiConfirm.value = true
+}
+async function saveUpiId() {
+  if (!upiId.value.trim()) {
+    toast.error('Please enter a UPI ID')
+    return
+  }
+  showUpiConfirm.value = false
+  upiSaving.value = true
+  try {
+    await updateUpiApi({ upi_id: upiId.value.trim() })
+    toast.success('UPI ID updated successfully')
+  } catch (error) {
+    toast.error('Failed to update UPI ID')
+  } finally {
+    upiSaving.value = false
+  }
+}
 onMounted(() => {
   fetchMessStatus()
   fetchMeals()
@@ -1793,6 +1881,284 @@ label {
   color: #94a3b8;
   font-size: 13px;
   font-style: italic;
+}
+/* peyment */
+/* ===== UPI SECTION ===== */
+.upi-section {
+  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.upi-desc-text {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.upi-input-row {
+  margin-bottom: 14px;
+}
+
+.upi-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f9fafb;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.upi-input-wrap:focus-within {
+  border-color: #0ea5e9;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, .15);
+}
+
+.upi-prefix {
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  letter-spacing: .5px;
+  flex-shrink: 0;
+}
+
+.upi-input {
+  flex: 1;
+  height: 46px;
+  border: none;
+  outline: none;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+}
+
+.upi-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.upi-save-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, .3);
+  transition: all .25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.upi-save-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, .4);
+}
+
+.upi-save-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Preview card */
+.upi-preview {
+  margin-top: 16px;
+}
+
+.upi-preview-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  margin-bottom: 8px;
+}
+
+.upi-preview-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.upi-preview-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upi-preview-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.upi-preview-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: capitalize;
+}
+
+.upi-preview-id {
+  font-size: 11px;
+  color: #64748b;
+  font-family: monospace;
+  margin-top: 1px;
+}
+
+.upi-preview-apps {
+  display: flex;
+  gap: 5px;
+}
+
+.app-pill {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.app-pill.phonepe { background: #5a2d9c; }
+
+/* confirmation */
+/* ═══ UPI CONFIRM DIALOG ═══ */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 20px;
+}
+
+.confirm-box {
+  background: white;
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .2);
+  animation: popIn .2s ease;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.confirm-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.confirm-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.confirm-msg {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+.confirm-msg strong {
+  color: #0f172a;
+  font-family: monospace;
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-cancel {
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background .2s;
+}
+
+.confirm-cancel:hover {
+  background: #f1f5f9;
+}
+
+.confirm-yes {
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #0ea5e9, #2563eb);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, .35);
+  transition: all .2s;
+}
+
+.confirm-yes:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, .45);
+}
+
+.modal-fade-enter-active, .modal-fade-leave-active {
+  transition: opacity .2s ease;
+}
+.modal-fade-enter-from, .modal-fade-leave-to {
+  opacity: 0;
 }
 /* ===== MOBILE ===== */
 

@@ -138,4 +138,11 @@ export const updateLocationApi = (data) => {
 export const placeOrderApi = (data) => {
   return api.post('/place-order', data)
 }
+export const updateUpiApi = (data) => {
+  return api.put('/update-upi', data, {
+    headers: {
+      Authorization: `${localStorage.getItem('token')}`
+    }
+  })
+}
 export default api
