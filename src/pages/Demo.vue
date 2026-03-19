@@ -165,145 +165,95 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0">
           <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-6-3h-1v-2h1c.55 0 1-.45 1-1s-.45-1-1-1h-2v5h1v-1h1c1.1 0 2-.9 2-2s-.9-2-2-2z"/>
         </svg>
-        Pay via UPI
+        Pay ₹{{ cartTotal }}
       </button>
-    </div>
-  </Transition>
-
-  <!-- ════════ SUCCESS TOAST ════════ -->
-  <Transition name="slide-down">
-    <div v-if="orderSuccess" class="order-success-toast">
-      🎉 Payment recorded! Show this to the admin.
     </div>
   </Transition>
 
   <!-- ════════ PAYMENT SHEET ════════ -->
   <Transition name="modal">
-    <div v-if="showPaySheet" class="modal-bg" @click.self="closePaySheet">
+    <div v-if="showPaySheet" class="modal-bg" @click.self="showPaySheet = false">
       <div class="pay-sheet">
         <div class="pay-handle" />
 
-        <!-- STEP 1 — pick UPI app -->
-        <template v-if="!utrStep">
-          <div class="pay-header">
-            <div>
-              <p class="pay-title">Choose payment method</p>
-              <p class="pay-sub">{{ cartCount }} items · Total ₹{{ cartTotal }}</p>
-            </div>
-            <button class="pay-close" @click="closePaySheet">✕</button>
+        <div class="pay-header">
+          <div>
+            <p class="pay-title">Pay ₹{{ cartTotal }}</p>
+            <p class="pay-sub">Choose how you want to pay</p>
           </div>
+          <button class="pay-close" @click="showPaySheet = false">✕</button>
+        </div>
 
-          <div class="pay-summary">
-            <div class="pay-row" v-for="entry in Object.values(cart)" :key="entry.item.id">
-              <span class="pay-row-name">{{ entry.item.meal_name }} × {{ entry.qty }}</span>
-              <span class="pay-row-amt">₹{{ Number(entry.item.meal_price) * entry.qty }}</span>
-            </div>
-            <div class="pay-row total-row">
-              <span>Total</span>
-              <span>₹{{ cartTotal }}</span>
-            </div>
+        <!-- Order summary -->
+        <div class="pay-summary">
+          <div class="pay-row" v-for="entry in Object.values(cart)" :key="entry.item.id">
+            <span class="pay-row-name">{{ entry.item.meal_name }} × {{ entry.qty }}</span>
+            <span class="pay-row-amt">₹{{ Number(entry.item.meal_price) * entry.qty }}</span>
           </div>
-
-          <div class="upi-list">
-            <button class="upi-btn phonepe-btn" @click="payWith('phonepe')">
-              <div class="upi-logo phonepe-logo">Pe</div>
-              <div class="upi-info">
-                <span class="upi-name">PhonePe</span>
-                <span class="upi-desc">Opens PhonePe app</span>
-              </div>
-              <span class="upi-arrow">›</span>
-            </button>
-
-            <button class="upi-btn gpay-btn" @click="payWith('gpay')">
-              <div class="upi-logo gpay-logo">G</div>
-              <div class="upi-info">
-                <span class="upi-name">Google Pay</span>
-                <span class="upi-desc">Opens GPay app</span>
-              </div>
-              <span class="upi-arrow">›</span>
-            </button>
-
-            <button class="upi-btn other-btn" @click="payWith('upi')">
-              <div class="upi-logo other-logo">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                </svg>
-              </div>
-              <div class="upi-info">
-                <span class="upi-name">Any UPI app</span>
-                <span class="upi-desc">Opens default UPI handler</span>
-              </div>
-              <span class="upi-arrow">›</span>
-            </button>
+          <div class="pay-row total-row">
+            <span>Total</span>
+            <span>₹{{ cartTotal }}</span>
           </div>
+        </div>
 
-          <p class="pay-secure">🔒 Secured by UPI · Payments go directly to the mess</p>
-        </template>
-
-        <!-- STEP 2 — waiting for user to pay -->
-        <template v-else-if="utrStep === 'waiting'">
-          <div class="pay-header">
-            <div>
-              <p class="pay-title">Opening {{ paidApp }}…</p>
-              <p class="pay-sub">Complete payment of ₹{{ cartTotal }} there</p>
+        <!-- ── Option 1: UPI Apps ── -->
+        <p class="section-label">Pay with UPI app</p>
+        <div class="upi-list">
+          <button class="upi-btn phonepe-btn" @click="payWith('phonepe')">
+            <div class="upi-logo phonepe-logo">Pe</div>
+            <div class="upi-info">
+              <span class="upi-name">PhonePe</span>
+              <span class="upi-desc">Amount pre-filled · tap to open</span>
             </div>
-            <button class="pay-close" @click="closePaySheet">✕</button>
-          </div>
-
-          <div class="waiting-box">
-            <div class="waiting-ring">
-              <div class="upi-logo-lg" :style="{ background: utrAppColor }">{{ utrAppInitial }}</div>
-            </div>
-            <p class="waiting-title">Pay ₹{{ cartTotal }} in {{ paidApp }}</p>
-            <p class="waiting-hint">After paying, come back here and tap the button below</p>
-          </div>
-
-          <button class="paid-btn" @click="utrStep = 'utr'">
-            ✅ I've paid — enter transaction ID
+            <span class="upi-arrow">›</span>
           </button>
-          <button class="paid-cancel" @click="utrStep = false; paidApp = null">← Go back</button>
-          <p class="pay-secure">🔒 Admin will verify your payment</p>
-        </template>
 
-        <!-- STEP 3 — enter UTR number -->
-        <template v-else-if="utrStep === 'utr'">
-          <div class="pay-header">
-            <div>
-              <p class="pay-title">Confirm payment</p>
-              <p class="pay-sub">Paid via {{ paidApp }} · ₹{{ cartTotal }}</p>
+          <button class="upi-btn gpay-btn" @click="payWith('gpay')">
+            <div class="upi-logo gpay-logo">G</div>
+            <div class="upi-info">
+              <span class="upi-name">Google Pay</span>
+              <span class="upi-desc">Amount pre-filled · tap to open</span>
             </div>
-            <button class="pay-close" @click="closePaySheet">✕</button>
-          </div>
-
-          <div class="utr-app-badge">
-            <span class="utr-app-icon" :style="{ background: utrAppColor }">{{ utrAppInitial }}</span>
-            <div>
-              <p class="utr-app-name">Enter your transaction ID</p>
-              <p class="utr-app-hint">{{ paidApp }} → History → tap the transaction → copy UTR</p>
-            </div>
-          </div>
-
-          <div class="utr-input-wrap">
-            <label class="utr-label">Transaction / UTR Number</label>
-            <input
-              v-model="utrNumber"
-              class="utr-input"
-              placeholder="e.g. 426819284723"
-              inputmode="numeric"
-              maxlength="30"
-              @input="utrError = ''"
-            />
-            <p v-if="utrError" class="utr-error">{{ utrError }}</p>
-            <p class="utr-hint">This helps the admin verify your payment</p>
-          </div>
-
-          <button class="paid-btn" :disabled="!utrNumber.trim()" @click="confirmPayment">
-            ✅ Confirm Payment
+            <span class="upi-arrow">›</span>
           </button>
-          <button class="paid-cancel" @click="utrStep = 'waiting'">← Go back</button>
-          <p class="pay-secure">🔒 Admin will verify your transaction ID</p>
-        </template>
 
+          <button class="upi-btn other-btn" @click="payWith('upi')">
+            <div class="upi-logo other-logo">⋯</div>
+            <div class="upi-info">
+              <span class="upi-name">Any UPI app</span>
+              <span class="upi-desc">BHIM, Amazon Pay &amp; others</span>
+            </div>
+            <span class="upi-arrow">›</span>
+          </button>
+        </div>
+
+        <!-- ── Divider ── -->
+        <div class="or-divider"><span>or</span></div>
+
+        <!-- ── Option 2: Scan QR ── -->
+        <button class="scan-btn" @click="openCamera">
+          <div class="scan-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M20 5h-6v6h6V5zm-6 8h1.5v1.5H14V13zm1.5 1.5H17V16h-1.5v-1.5zM17 13h1.5v1.5H17V13zm-3 3h1.5v1.5H14V16zm1.5 1.5H17V19h-1.5v-1.5zM17 16h1.5v1.5H17V16zm1.5-1.5H20V16h-1.5v-1.5zm0 3H20V19h-1.5v-1.5zM22 7h-2V4h-3V2h5v5zm0 15v-5h-2v3h-3v2h5zM2 22h5v-2H4v-3H2v5zM2 2v5h2V4h3V2H2z"/>
+            </svg>
+          </div>
+          <div class="scan-info">
+            <span class="scan-title">Scan & Pay with camera</span>
+            <span class="scan-desc">Opens camera · scan admin's QR code</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
+            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+          </svg>
+        </button>
+
+        <!-- UPI ID copy row -->
+        <div v-if="upiId" class="upi-id-row">
+          <span class="upi-id-label">UPI ID</span>
+          <span class="upi-id-val">{{ upiId }}</span>
+          <button class="copy-btn" @click="copyUpiId">{{ copied ? '✓' : 'Copy' }}</button>
+        </div>
+
+        <p class="pay-secure">🔒 Pay directly · Admin verifies manually</p>
       </div>
     </div>
   </Transition>
@@ -338,6 +288,7 @@ const loading      = ref(true)
 const messName     = ref('')
 const imageUrls    = ref([])
 const mapUrl       = ref('')
+const upiId        = ref('')          // comes from backend
 const currentSlide = ref(0)
 let   slideInterval = null
 
@@ -412,59 +363,31 @@ const cartCount = computed(() =>
 )
 
 // ─── Payment ──────────────────────────────────────────────────
-// utrStep: false | 'waiting' | 'utr'
-const showPaySheet  = ref(false)
-const paidApp       = ref(null)
-const utrStep       = ref(false)
-const utrNumber     = ref('')
-const utrError      = ref('')
-const orderSuccess  = ref(false)
-
-const utrAppColor = computed(() => {
-  const map = { PhonePe: '#5a2d9c', 'Google Pay': '#1a73e8', UPI: '#64748b' }
-  return map[paidApp.value] || '#64748b'
-})
-const utrAppInitial = computed(() => {
-  const map = { PhonePe: 'Pe', 'Google Pay': 'G', UPI: '⋯' }
-  return map[paidApp.value] || '?'
-})
+const showPaySheet = ref(false)
+const copied       = ref(false)
 
 const openPaySheet = () => {
-  utrStep.value      = false
-  utrNumber.value    = ''
-  utrError.value     = ''
-  paidApp.value      = null
   showPaySheet.value = true
 }
 
-const closePaySheet = () => {
-  showPaySheet.value = false
-  utrStep.value      = false
-  utrNumber.value    = ''
-  utrError.value     = ''
-  paidApp.value      = null
-}
-
+// Fires UPI deep link with amount pre-filled
 const payWith = (app) => {
   const amount = cartTotal.value.toFixed(2)
-  const upiId  = '8484808337@ybl'          // ← your UPI ID
+  const id     = upiId.value || ''
   const name   = encodeURIComponent(messName.value || 'Mess Payment')
   const note   = encodeURIComponent('Meal order')
 
   const links = {
-    phonepe: `phonepe://pay?pa=${upiId}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
-    gpay:    `tez://upi/pay?pa=${upiId}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
-    upi:     `upi://pay?pa=${upiId}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
+    phonepe: `phonepe://pay?pa=${id}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
+    gpay:    `tez://upi/pay?pa=${id}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
+    upi:     `upi://pay?pa=${id}&pn=${name}&am=${amount}&cu=INR&tn=${note}`,
   }
-  const labels = { phonepe: 'PhonePe', gpay: 'Google Pay', upi: 'UPI' }
-  paidApp.value = labels[app]
 
-  // Fire UPI deep link
   const a = document.createElement('a')
   a.href  = links[app]
   a.click()
 
-  // Generic fallback after 1.8s if app not installed
+  // Generic UPI fallback after 1.8s if specific app not installed
   if (app !== 'upi') {
     setTimeout(() => {
       const fb = document.createElement('a')
@@ -472,31 +395,50 @@ const payWith = (app) => {
       fb.click()
     }, 1800)
   }
-
-  // Show "waiting" screen after 3s — simple, reliable, no visibility tricks
-  setTimeout(() => {
-    utrStep.value = 'waiting'
-  }, 3000)
 }
 
-const confirmPayment = () => {
-  if (!utrNumber.value.trim()) {
-    utrError.value = 'Please enter the transaction ID'
-    return
-  }
-  if (utrNumber.value.trim().length < 8) {
-    utrError.value = 'Transaction ID looks too short'
-    return
-  }
+// Opens phone camera — user scans admin's QR code in their UPI app
+const openCamera = () => {
+  // This opens the native camera on mobile
+  // User should already have PhonePe/GPay open, then scan
+  // We just trigger the UPI generic intent with no pre-filled amount
+  // so the QR code itself carries the payment info
+  const a = document.createElement('a')
+  a.href  = 'upi://mandate'   // generic UPI intent — phone shows app chooser
+  a.click()
 
-  // Close sheet, clear cart, show success toast
-  cart.value         = {}
-  utrNumber.value    = ''
-  utrStep.value      = false
-  paidApp.value      = null
-  showPaySheet.value = false
-  orderSuccess.value = true
-  setTimeout(() => { orderSuccess.value = false }, 5000)
+  // Fallback: if above doesn't work, try opening camera directly
+  setTimeout(() => {
+    // Most phones: just tapping camera icon in GPay/PhonePe and scanning works
+    // This is a best-effort camera open via input[capture]
+    const input = document.createElement('input')
+    input.type    = 'file'
+    input.accept  = 'image/*'
+    input.capture = 'environment'   // rear camera
+    input.style.display = 'none'
+    document.body.appendChild(input)
+    input.click()
+    setTimeout(() => document.body.removeChild(input), 5000)
+  }, 800)
+}
+
+// Copy UPI ID to clipboard
+const copyUpiId = async () => {
+  try {
+    await navigator.clipboard.writeText(upiId.value)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+  } catch {
+    // Fallback for older browsers
+    const el = document.createElement('textarea')
+    el.value = upiId.value
+    document.body.appendChild(el)
+    el.select()
+    document.execCommand('copy')
+    document.body.removeChild(el)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2000)
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -529,6 +471,11 @@ onMounted(async () => {
     imageUrls.value = res.data?.image_urls || []
     mapUrl.value    = res.data?.location?.map_url || ''
 
+    // ── UPI ID from backend ──
+    // Adjust the key below to match whatever your API returns
+    // e.g. res.data?.upi_id  or  res.data?.location?.upi_id
+    upiId.value = res.data?.upi_id || res.data?.location?.upi_id || ''
+
     const available = allTabs
       .filter(t => groupByTitle(meals.value.filter(
         m => m.meal_flag === allTabs.findIndex(x => x.key === t.key)
@@ -560,100 +507,49 @@ onBeforeUnmount(() => clearInterval(slideInterval))
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 button { border: none; background: none; font-family: 'Poppins', sans-serif; cursor: pointer; }
 
-.app {
-  font-family: 'Poppins', sans-serif; max-width: 480px;
-  margin: auto; min-height: 100vh;
-  background: linear-gradient(180deg, #fafafa, #eef1f6);
-}
+.app { font-family: 'Poppins', sans-serif; max-width: 480px; margin: auto; min-height: 100vh; background: linear-gradient(180deg, #fafafa, #eef1f6); }
 
-/* ── HERO ── */
+/* HERO */
 .hero { position: relative; height: 230px; overflow: hidden; }
 .hero-track { display: flex; height: 100%; transition: transform .6s ease; }
 .hero-slide { flex: 0 0 100%; }
 .hero-img { width: 100%; height: 100%; object-fit: cover; }
 .hero-gradient { width: 100%; height: 100%; background: linear-gradient(135deg, #1e293b, #334155); }
-.hero-scrim {
-  position: absolute; inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.15), rgba(0,0,0,.75));
-}
-
-/* ── NAVBAR ── */
-.navbar {
-  position: absolute; top: 0; left: 0; right: 0;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 13px 15px; z-index: 10;
-}
+.hero-scrim { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.15), rgba(0,0,0,.75)); }
+.navbar { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 13px 15px; z-index: 10; }
 .navbar-left { display: flex; align-items: center; gap: 10px; }
-.nav-icon {
-  width: 38px; height: 38px; border-radius: 12px; background: white;
-  display: flex; align-items: center; justify-content: center; font-size: 18px;
-}
+.nav-icon { width: 38px; height: 38px; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; font-size: 18px; }
 .nav-text { display: flex; flex-direction: column; }
 .nav-label { font-size: 10px; color: #ddd; }
-.nav-name {
-  font-size: 15px; font-weight: 900; color: #fff; text-transform: capitalize;
-  line-height: 1.2; text-shadow: 0 1px 8px rgba(0,0,0,.45);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;
-}
-.nav-dir-btn {
-  background: #ff7a18; color: white; padding: 7px 14px;
-  border-radius: 20px; font-size: 11px; font-weight: 600;
-}
+.nav-name { font-size: 15px; font-weight: 900; color: #fff; text-transform: capitalize; line-height: 1.2; text-shadow: 0 1px 8px rgba(0,0,0,.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+.nav-dir-btn { background: #ff7a18; color: white; padding: 7px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; }
 .hero-bottom { position: absolute; bottom: 18px; left: 18px; color: white; }
-.hero-pill {
-  font-size: 10px; background: rgba(255,255,255,.25);
-  padding: 4px 10px; border-radius: 20px; margin-bottom: 6px;
-}
+.hero-pill { font-size: 10px; background: rgba(255,255,255,.25); padding: 4px 10px; border-radius: 20px; margin-bottom: 6px; }
 .hero-date { font-size: 12px; }
 .hero-dots { display: flex; gap: 5px; margin-top: 8px; }
 .hdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.4); cursor: pointer; transition: .2s; }
 .hdot.active { background: white; width: 16px; border-radius: 3px; }
 
-/* ── TAB BAR ── */
-.tab-bar {
-  display: flex; width: 100%;
-  background: rgba(255,255,255,.15);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,.2);
-  position: sticky; top: 0;
-  box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6);
-  z-index: 30;
-}
-.tab-btn {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  padding: 11px 4px 10px; background: transparent; border: none;
-  border-bottom: 3px solid transparent; font-size: 11px; font-weight: 700;
-  transition: color .18s, border-color .18s; letter-spacing: .1px;
-}
+/* TAB BAR */
+.tab-bar { display: flex; width: 100%; background: rgba(255,255,255,.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,.2); position: sticky; top: 0; box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6); z-index: 30; }
+.tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 11px 4px 10px; background: transparent; border: none; border-bottom: 3px solid transparent; font-size: 11px; font-weight: 700; transition: color .18s, border-color .18s; letter-spacing: .1px; }
 .tab-btn.active { color: #ff420b; border-bottom-color: #5fc2db; }
 .tab-icon { font-size: 19px; line-height: 1; margin-bottom: 3px; display: block; }
 .tab-label { font-size: 11px; }
 
-/* ── SHEET ── */
+/* SHEET */
 .sheet-wrap { padding: 13px; background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81); min-height: 50vh; }
 .sheet { background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6); }
 .meal-panel { padding: 16px; }
 .time-badge { text-align: center; font-size: 11px; color: #64748b; margin-bottom: 14px; }
-
-/* ── GROUP TITLE ── */
-.group-title {
-  position: relative; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1.2px; color: #5f5c5c;
-  text-align: center; margin: 16px 0 9px;
-}
-.group-title::before, .group-title::after {
-  content: ''; position: absolute; top: 50%; width: 27%; height: 1px; background: #e2e8f0;
-}
+.group-title { position: relative; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #5f5c5c; text-align: center; margin: 16px 0 9px; }
+.group-title::before, .group-title::after { content: ''; position: absolute; top: 50%; width: 27%; height: 1px; background: #e2e8f0; }
 .group-title::before { left: 0; }
 .group-title::after  { right: 0; }
 
-/* ── ITEM CARDS ── */
+/* ITEMS */
 .items { display: flex; flex-direction: column; gap: 10px; }
-.item-card {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 15px 9px 18px; border-radius: 16px; background: #f8fafc;
-  transition: .2s; box-shadow: 0 3px 8px rgba(0,0,0,.05); cursor: pointer;
-}
+.item-card { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px 9px 18px; border-radius: 16px; background: #f8fafc; transition: .2s; box-shadow: 0 3px 8px rgba(0,0,0,.05); cursor: pointer; }
 .item-card:active { transform: scale(.97); }
 .item-card.selected { outline: 2px solid #ff7a18; outline-offset: -2px; }
 .breakfast .item-card { background: linear-gradient(135deg, #fff1c9, #ffe08a); }
@@ -661,46 +557,26 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .dinner    .item-card { background: linear-gradient(135deg, #e8dcff, #c6b5ff); }
 .item-name { font-size: 14px; font-weight: 600; color: #1e293b; }
 .item-right { display: flex; align-items: center; gap: 8px; }
-.rate-btn {
-  width: 30px; height: 30px; border-radius: 50%; background: white;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.15);
-}
+.rate-btn { width: 30px; height: 30px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
 .item-price { background: #fff; color: #111; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
-
-/* ── QTY STEPPER ── */
-.qty-stepper {
-  display: flex; align-items: center; gap: 4px;
-  background: white; border-radius: 20px; padding: 2px 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.12);
-}
-.qty-btn {
-  width: 22px; height: 22px; border-radius: 50%; background: #ff7a18; color: white;
-  font-size: 15px; font-weight: 700; display: flex; align-items: center;
-  justify-content: center; line-height: 1; border: none; cursor: pointer;
-}
+.qty-stepper { display: flex; align-items: center; gap: 4px; background: white; border-radius: 20px; padding: 2px 6px; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+.qty-btn { width: 22px; height: 22px; border-radius: 50%; background: #ff7a18; color: white; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1; border: none; cursor: pointer; }
 .qty-num { font-size: 13px; font-weight: 700; min-width: 16px; text-align: center; color: #1e293b; }
 
-/* ── STATES ── */
+/* STATES */
 .state-box { padding: 60px 20px; text-align: center; }
 .state-icon { font-size: 40px; margin-bottom: 12px; }
 .state-txt { font-size: 14px; color: #64748b; }
 .state-txt.error { color: #ef4444; }
-.spinner {
-  width: 30px; height: 30px; border: 3px solid #e5e7eb; border-top-color: #ff7a18;
-  border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px;
-}
+.spinner { width: 30px; height: 30px; border: 3px solid #e5e7eb; border-top-color: #ff7a18; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
 @keyframes spin { to { transform: rotate(360deg) } }
 
-/* ── MODAL BACKDROP ── */
-.modal-bg {
-  position: fixed; inset: 0; background: rgba(0,0,0,.5);
-  display: flex; align-items: flex-end; justify-content: center; z-index: 200;
-}
+/* MODAL */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: flex-end; justify-content: center; z-index: 200; }
 .modal-enter-active, .modal-leave-active { transition: opacity .25s ease; }
 .modal-enter-from, .modal-leave-to { opacity: 0; }
 
-/* ── RATING MODAL ── */
+/* RATING */
 .modal-box { width: 100%; max-width: 480px; background: white; border-radius: 22px 22px 0 0; padding: 24px; text-align: center; }
 .modal-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
 .modal-item-name { font-size: 20px; font-weight: 700; margin-bottom: 18px; color: #0f172a; }
@@ -711,96 +587,70 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
 .cancel-btn { margin-top: 10px; color: #ef4444; font-weight: 600; }
 
-/* ── CART BAR ── */
-.cart-bar {
-  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  width: calc(100% - 32px); max-width: 448px;
-  background: #1e293b; border-radius: 20px; padding: 10px 12px;
-  display: flex; align-items: center; gap: 10px;
-  z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,.28);
-}
+/* CART BAR */
+.cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; background: #1e293b; border-radius: 20px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,.28); }
 .cart-left { display: flex; align-items: center; gap: 6px; }
 .cart-badge { background: #ff7a18; color: white; font-size: 11px; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .cart-label { font-size: 12px; color: #94a3b8; font-weight: 500; }
 .cart-total { flex: 1; font-size: 17px; font-weight: 700; color: white; }
-.pay-btn {
-  background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white;
-  padding: 10px 16px; border-radius: 14px; font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; gap: 6px; white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(91,33,182,.45); transition: transform .15s;
-}
+.pay-btn { background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; padding: 10px 16px; border-radius: 14px; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 4px 14px rgba(91,33,182,.45); transition: transform .15s; }
 .pay-btn:active { transform: scale(.96); }
-
 .slide-up-enter-active, .slide-up-leave-active { transition: transform .3s ease, opacity .3s ease; }
 .slide-up-enter-from, .slide-up-leave-to { transform: translateX(-50%) translateY(80px); opacity: 0; }
 
-/* ── SUCCESS TOAST ── */
-.order-success-toast {
-  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-  background: #16a34a; color: white; padding: 12px 22px;
-  border-radius: 14px; font-size: 13px; font-weight: 600;
-  z-index: 300; white-space: nowrap; box-shadow: 0 6px 20px rgba(22,163,74,.35);
-}
-.slide-down-enter-active, .slide-down-leave-active { transition: transform .3s ease, opacity .3s ease; }
-.slide-down-enter-from, .slide-down-leave-to { transform: translateX(-50%) translateY(-60px); opacity: 0; }
-
-/* ── PAYMENT SHEET ── */
-.pay-sheet { width: 100%; max-width: 480px; background: white; border-radius: 26px 26px 0 0; padding: 12px 18px 36px; max-height: 90vh; overflow-y: auto; }
+/* PAYMENT SHEET */
+.pay-sheet { width: 100%; max-width: 480px; background: white; border-radius: 26px 26px 0 0; padding: 12px 18px 36px; max-height: 92vh; overflow-y: auto; }
 .pay-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 16px; }
 .pay-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-.pay-title { font-size: 17px; font-weight: 700; color: #0f172a; }
+.pay-title { font-size: 20px; font-weight: 700; color: #0f172a; }
 .pay-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
 .pay-close { width: 30px; height: 30px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+
+/* SUMMARY */
 .pay-summary { background: #f8fafc; border-radius: 14px; padding: 10px 14px; margin-bottom: 16px; }
 .pay-row { display: flex; justify-content: space-between; font-size: 13px; color: #475569; padding: 4px 0; }
 .pay-row-name { font-weight: 500; }
-.pay-row-amt  { font-weight: 600; color: #334155; }
+.pay-row-amt { font-weight: 600; color: #334155; }
 .total-row { border-top: 1px solid #e2e8f0; margin-top: 6px; padding-top: 8px; font-size: 14px; font-weight: 700; color: #0f172a; }
 
-/* ── UPI BUTTONS ── */
+/* SECTION LABEL */
+.section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; margin-bottom: 10px; }
+
+/* UPI BUTTONS */
 .upi-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
-.upi-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; }
+.upi-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; }
 .upi-btn:active { transform: scale(.97); }
 .phonepe-btn { background: #f5f0ff; border-color: #c4b5fd; }
 .gpay-btn    { background: #f0fdf4; border-color: #86efac; }
 .other-btn   { background: #f8fafc; border-color: #e2e8f0; }
-.upi-logo { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+.upi-logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
 .phonepe-logo { background: #5a2d9c; color: white; }
 .gpay-logo    { background: #1a73e8; color: white; }
-.other-logo   { background: #64748b; color: white; }
-.upi-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.upi-name { font-size: 14px; font-weight: 700; color: #0f172a; }
+.other-logo   { background: #64748b; color: white; font-size: 16px; }
+.upi-info { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.upi-name { font-size: 13px; font-weight: 700; color: #0f172a; }
 .upi-desc { font-size: 11px; color: #64748b; }
-.upi-arrow { font-size: 20px; color: #cbd5e1; font-weight: 300; }
-.pay-secure { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 16px; }
+.upi-arrow { font-size: 20px; color: #cbd5e1; }
 
-/* ── WAITING SCREEN ── */
-.waiting-box { text-align: center; padding: 24px 0 20px; }
-.waiting-ring {
-  width: 80px; height: 80px; border-radius: 50%;
-  border: 3px solid #e2e8f0; display: flex; align-items: center;
-  justify-content: center; margin: 0 auto 16px; animation: pulse 1.8s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(124,58,237,.25); } 50% { box-shadow: 0 0 0 12px rgba(124,58,237,0); } }
-.upi-logo-lg { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: white; }
-.waiting-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-.waiting-hint { font-size: 12px; color: #64748b; line-height: 1.5; padding: 0 8px; }
+/* OR DIVIDER */
+.or-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
+.or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+.or-divider span { font-size: 11px; color: #94a3b8; font-weight: 600; }
 
-/* ── UTR STEP ── */
-.utr-app-badge { display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 14px; margin-bottom: 16px; }
-.utr-app-icon { width: 40px; height: 40px; border-radius: 11px; color: white; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.utr-app-name { font-size: 13px; font-weight: 700; color: #0f172a; }
-.utr-app-hint { font-size: 11px; color: #64748b; margin-top: 2px; }
-.utr-input-wrap { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-.utr-label { font-size: 13px; font-weight: 600; color: #334155; }
-.utr-input { width: 100%; height: 48px; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 0 14px; font-size: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; letter-spacing: 1px; color: #0f172a; outline: none; transition: border-color .2s; }
-.utr-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.12); }
-.utr-error { font-size: 11px; color: #ef4444; font-weight: 500; }
-.utr-hint { font-size: 11px; color: #94a3b8; }
+/* SCAN BUTTON */
+.scan-btn { width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; background: linear-gradient(135deg, #0f172a, #1e293b); border: none; cursor: pointer; transition: transform .15s; text-align: left; margin-bottom: 14px; }
+.scan-btn:active { transform: scale(.98); }
+.scan-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; }
+.scan-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.scan-title { font-size: 14px; font-weight: 700; color: white; }
+.scan-desc { font-size: 11px; color: rgba(255,255,255,.55); }
 
-/* ── CONFIRM & CANCEL ── */
-.paid-btn { width: 100%; padding: 14px; border-radius: 14px; background: #16a34a; color: white; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer; transition: transform .15s; font-family: 'Poppins', sans-serif; margin-bottom: 10px; }
-.paid-btn:disabled { opacity: .55; cursor: not-allowed; }
-.paid-btn:not(:disabled):active { transform: scale(.97); }
-.paid-cancel { display: block; width: 100%; text-align: center; font-size: 12px; color: #94a3b8; background: none; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; padding: 4px; }
+/* UPI ID ROW */
+.upi-id-row { display: flex; align-items: center; gap: 8px; background: #f8fafc; border-radius: 12px; padding: 10px 14px; margin-bottom: 4px; }
+.upi-id-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; flex-shrink: 0; }
+.upi-id-val { flex: 1; font-size: 13px; font-weight: 600; color: #0f172a; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.copy-btn { font-size: 11px; font-weight: 700; color: #7c3aed; background: #ede9fe; border: none; border-radius: 8px; padding: 4px 10px; cursor: pointer; flex-shrink: 0; font-family: 'Poppins', sans-serif; transition: background .15s; }
+.copy-btn:active { background: #ddd6fe; }
+
+.pay-secure { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 14px; }
 </style>
