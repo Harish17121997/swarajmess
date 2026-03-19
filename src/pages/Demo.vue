@@ -179,7 +179,7 @@
         <div class="pay-header">
           <div>
             <p class="pay-title">Pay ₹{{ cartTotal }}</p>
-            <p class="pay-sub">Choose how you want to pay</p>
+            <p class="pay-sub">{{ cartCount }} item{{ cartCount > 1 ? 's' : '' }} · Admin verifies manually</p>
           </div>
           <button class="pay-close" @click="showPaySheet = false">✕</button>
         </div>
@@ -196,61 +196,64 @@
           </div>
         </div>
 
-        <!-- ── Option 1: UPI Apps ── -->
-        <p class="section-label">Pay with UPI app</p>
+        <!-- ── Section 1: UPI Apps with amount pre-filled ── -->
+        <p class="section-label">Pay directly — amount pre-filled</p>
         <div class="upi-list">
           <button class="upi-btn phonepe-btn" @click="payWith('phonepe')">
-            <div class="upi-logo phonepe-logo">Pe</div>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s" alt="PhonePe logo" class="scanner-logo phonepe-logo">
             <div class="upi-info">
               <span class="upi-name">PhonePe</span>
-              <span class="upi-desc">Amount pre-filled · tap to open</span>
+              <span class="upi-desc">Opens with ₹{{ cartTotal }} pre-filled</span>
             </div>
             <span class="upi-arrow">›</span>
           </button>
 
           <button class="upi-btn gpay-btn" @click="payWith('gpay')">
-            <div class="upi-logo gpay-logo">G</div>
+            <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png" alt="PhonePe logo" class="upi-logo gpay-logo">
             <div class="upi-info">
               <span class="upi-name">Google Pay</span>
-              <span class="upi-desc">Amount pre-filled · tap to open</span>
-            </div>
-            <span class="upi-arrow">›</span>
-          </button>
-
-          <button class="upi-btn other-btn" @click="payWith('upi')">
-            <div class="upi-logo other-logo">⋯</div>
-            <div class="upi-info">
-              <span class="upi-name">Any UPI app</span>
-              <span class="upi-desc">BHIM, Amazon Pay &amp; others</span>
+              <span class="upi-desc">Opens with ₹{{ cartTotal }} pre-filled</span>
             </div>
             <span class="upi-arrow">›</span>
           </button>
         </div>
 
-        <!-- ── Divider ── -->
-        <div class="or-divider"><span>or</span></div>
+        <!-- ── OR divider ── -->
+        <div class="or-divider"><span>or scan admin's QR code</span></div>
 
-        <!-- ── Option 2: Scan QR ── -->
-        <button class="scan-btn" @click="openCamera">
-          <div class="scan-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M9.5 6.5v3h-3v-3h3M11 5H5v6h6V5zm-1.5 9.5v3h-3v-3h3M11 13H5v6h6v-6zm6.5-6.5v3h-3v-3h3M20 5h-6v6h6V5zm-6 8h1.5v1.5H14V13zm1.5 1.5H17V16h-1.5v-1.5zM17 13h1.5v1.5H17V13zm-3 3h1.5v1.5H14V16zm1.5 1.5H17V19h-1.5v-1.5zM17 16h1.5v1.5H17V16zm1.5-1.5H20V16h-1.5v-1.5zm0 3H20V19h-1.5v-1.5zM22 7h-2V4h-3V2h5v5zm0 15v-5h-2v3h-3v2h5zM2 22h5v-2H4v-3H2v5zM2 2v5h2V4h3V2H2z"/>
+        <!-- ── Section 2: Open scanner inside UPI app ── -->
+        <p class="section-label">Open QR scanner in app</p>
+        <div class="scanner-list">
+
+          <button class="scanner-btn phonepe-scan" @click="openScanner('phonepe')">
+            <!-- <div class="scanner-logo phonepe-logo">Pe</div> -->
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s" alt="PhonePe logo" class="scanner-logo phonepe-logo">
+            <div class="upi-info">
+              <span class="upi-name">PhonePe Scanner</span>
+              <span class="upi-desc">Opens PhonePe → tap Scan QR inside</span>
+            </div>
+            <svg class="scan-qr-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 3h7v7H3zm1 1v5h5V4zm1 1h3v3H5zm8-2h7v7h-7zm1 1v5h5V4zm1 1h3v3h-3zM3 13h7v7H3zm1 1v5h5v-5zm1 1h3v3H5zm8 0h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm-2 2h2v2h-2zm2 2h2v2h-2z"/>
             </svg>
-          </div>
-          <div class="scan-info">
-            <span class="scan-title">Scan & Pay with camera</span>
-            <span class="scan-desc">Opens camera · scan admin's QR code</span>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8">
-            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-          </svg>
-        </button>
+          </button>
 
+          <button class="scanner-btn gpay-scan" @click="openScanner('gpay')">
+             <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png" alt="PhonePe logo" class="upi-logo gpay-logo">
+            <div class="upi-info">
+              <span class="upi-name">GPay Scanner</span>
+              <span class="upi-desc">Opens Google Pay → tap Scan QR inside</span>
+            </div>
+            <svg class="scan-qr-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 3h7v7H3zm1 1v5h5V4zm1 1h3v3H5zm8-2h7v7h-7zm1 1v5h5V4zm1 1h3v3h-3zM3 13h7v7H3zm1 1v5h5v-5zm1 1h3v3H5zm8 0h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm-2 2h2v2h-2zm2 2h2v2h-2z"/>
+            </svg>
+          </button>
+
+        </div>
         <!-- UPI ID copy row -->
         <div v-if="upiId" class="upi-id-row">
           <span class="upi-id-label">UPI ID</span>
           <span class="upi-id-val">{{ upiId }}</span>
-          <button class="copy-btn" @click="copyUpiId">{{ copied ? '✓' : 'Copy' }}</button>
+          <button class="copy-btn" @click="copyUpiId">{{ copied ? '✓ Copied' : 'Copy' }}</button>
         </div>
 
         <p class="pay-secure">🔒 Pay directly · Admin verifies manually</p>
@@ -288,7 +291,7 @@ const loading      = ref(true)
 const messName     = ref('')
 const imageUrls    = ref([])
 const mapUrl       = ref('')
-const upiId        = ref('')          // comes from backend
+const upiId        = ref('')   // comes from backend
 const currentSlide = ref(0)
 let   slideInterval = null
 
@@ -370,10 +373,10 @@ const openPaySheet = () => {
   showPaySheet.value = true
 }
 
-// Fires UPI deep link with amount pre-filled
+// ── Pay with amount pre-filled ──
 const payWith = (app) => {
   const amount = cartTotal.value.toFixed(2)
-  const id     = upiId.value || ''
+  const id     = upiId.value
   const name   = encodeURIComponent(messName.value || 'Mess Payment')
   const note   = encodeURIComponent('Meal order')
 
@@ -387,7 +390,6 @@ const payWith = (app) => {
   a.href  = links[app]
   a.click()
 
-  // Generic UPI fallback after 1.8s if specific app not installed
   if (app !== 'upi') {
     setTimeout(() => {
       const fb = document.createElement('a')
@@ -397,48 +399,47 @@ const payWith = (app) => {
   }
 }
 
-// Opens phone camera — user scans admin's QR code in their UPI app
-const openCamera = () => {
-  // This opens the native camera on mobile
-  // User should already have PhonePe/GPay open, then scan
-  // We just trigger the UPI generic intent with no pre-filled amount
-  // so the QR code itself carries the payment info
+// ── Open app so user can tap Scan QR inside (no amount) ──
+// Browser cannot directly open the scanner — user taps Scan inside the app
+const openScanner = (app) => {
+  const id   = upiId.value
+  const name = encodeURIComponent(messName.value || 'Mess Payment')
+  const note = encodeURIComponent('Meal order')
+
+  // No amount — so the QR code the user scans will set the amount
+  const links = {
+    phonepe: `phonepe://pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`,
+    gpay:    `tez://upi/pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`,
+    upi:     `upi://pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`,
+  }
+
   const a = document.createElement('a')
-  a.href  = 'upi://mandate'   // generic UPI intent — phone shows app chooser
+  a.href  = links[app] || links.upi
   a.click()
 
-  // Fallback: if above doesn't work, try opening camera directly
-  setTimeout(() => {
-    // Most phones: just tapping camera icon in GPay/PhonePe and scanning works
-    // This is a best-effort camera open via input[capture]
-    const input = document.createElement('input')
-    input.type    = 'file'
-    input.accept  = 'image/*'
-    input.capture = 'environment'   // rear camera
-    input.style.display = 'none'
-    document.body.appendChild(input)
-    input.click()
-    setTimeout(() => document.body.removeChild(input), 5000)
-  }, 800)
+  if (app !== 'upi') {
+    setTimeout(() => {
+      const fb = document.createElement('a')
+      fb.href  = links.upi
+      fb.click()
+    }, 1800)
+  }
 }
 
-// Copy UPI ID to clipboard
+// ── Copy UPI ID ──
 const copyUpiId = async () => {
   try {
     await navigator.clipboard.writeText(upiId.value)
-    copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
   } catch {
-    // Fallback for older browsers
     const el = document.createElement('textarea')
     el.value = upiId.value
     document.body.appendChild(el)
     el.select()
     document.execCommand('copy')
     document.body.removeChild(el)
-    copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
   }
+  copied.value = true
+  setTimeout(() => { copied.value = false }, 2000)
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -472,9 +473,8 @@ onMounted(async () => {
     mapUrl.value    = res.data?.location?.map_url || ''
 
     // ── UPI ID from backend ──
-    // Adjust the key below to match whatever your API returns
-    // e.g. res.data?.upi_id  or  res.data?.location?.upi_id
-    upiId.value = res.data?.upi_id || res.data?.location?.upi_id || ''
+    // Update the key below to match your API response field name
+    upiId.value = res.data?.upi_id || '8484808337@ybl'
 
     const available = allTabs
       .filter(t => groupByTitle(meals.value.filter(
@@ -614,18 +614,18 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .total-row { border-top: 1px solid #e2e8f0; margin-top: 6px; padding-top: 8px; font-size: 14px; font-weight: 700; color: #0f172a; }
 
 /* SECTION LABEL */
-.section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; margin-bottom: 10px; }
+.section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; margin-bottom: 10px; display: block; }
 
 /* UPI BUTTONS */
 .upi-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
 .upi-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; }
 .upi-btn:active { transform: scale(.97); }
 .phonepe-btn { background: #f5f0ff; border-color: #c4b5fd; }
-.gpay-btn    { background: #f0fdf4; border-color: #86efac; }
+.gpay-btn    { background: #ffffff; border-color: #86efac; }
 .other-btn   { background: #f8fafc; border-color: #e2e8f0; }
 .upi-logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
 .phonepe-logo { background: #5a2d9c; color: white; }
-.gpay-logo    { background: #1a73e8; color: white; }
+.gpay-logo    { color: white; }
 .other-logo   { background: #64748b; color: white; font-size: 16px; }
 .upi-info { flex: 1; display: flex; flex-direction: column; gap: 1px; }
 .upi-name { font-size: 13px; font-weight: 700; color: #0f172a; }
@@ -633,17 +633,19 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .upi-arrow { font-size: 20px; color: #cbd5e1; }
 
 /* OR DIVIDER */
-.or-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
+.or-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0 14px; }
 .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
-.or-divider span { font-size: 11px; color: #94a3b8; font-weight: 600; }
+.or-divider span { font-size: 11px; color: #94a3b8; font-weight: 600; white-space: nowrap; }
 
-/* SCAN BUTTON */
-.scan-btn { width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; background: linear-gradient(135deg, #0f172a, #1e293b); border: none; cursor: pointer; transition: transform .15s; text-align: left; margin-bottom: 14px; }
-.scan-btn:active { transform: scale(.98); }
-.scan-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white; }
-.scan-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.scan-title { font-size: 14px; font-weight: 700; color: white; }
-.scan-desc { font-size: 11px; color: rgba(255,255,255,.55); }
+/* SCANNER BUTTONS */
+.scanner-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.scanner-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; }
+.scanner-btn:active { transform: scale(.97); }
+.phonepe-scan { background: #f5f0ff; border-color: #c4b5fd; }
+.gpay-scan    { background: #ffffff; border-color: #86efac; }
+.other-scan   { background: #f8fafc; border-color: #e2e8f0; }
+.scanner-logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+.scan-qr-icon { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* UPI ID ROW */
 .upi-id-row { display: flex; align-items: center; gap: 8px; background: #f8fafc; border-radius: 12px; padding: 10px 14px; margin-bottom: 4px; }
