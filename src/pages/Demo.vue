@@ -13,7 +13,6 @@
       <div v-else class="hero-gradient" />
       <div class="hero-scrim" />
 
-      <!-- Navbar -->
       <div class="navbar">
         <div class="navbar-left">
           <div class="nav-icon">🍽️</div>
@@ -30,7 +29,6 @@
         </button>
       </div>
 
-      <!-- Hero bottom text -->
       <div class="hero-bottom">
         <div class="hero-pill">Today's Menu</div>
         <p class="hero-date">{{ today }}</p>
@@ -54,7 +52,7 @@
       </button>
     </div>
 
-    <!-- ════════ SHEET WRAPPER ════════ -->
+    <!-- ════════ SHEET ════════ -->
     <div class="sheet-wrap">
       <div class="sheet">
 
@@ -74,7 +72,7 @@
 
         <div v-else class="meal-container">
 
-          <!-- ── Breakfast ── -->
+          <!-- Breakfast -->
           <div v-show="activeTab === 'breakfast'" class="meal-panel breakfast">
             <div class="time-badge">🕖 7 AM – 10 AM</div>
             <div v-for="(items, title) in groupedMeals.breakfast" :key="title">
@@ -99,7 +97,7 @@
             </div>
           </div>
 
-          <!-- ── Lunch ── -->
+          <!-- Lunch -->
           <div v-show="activeTab === 'lunch'" class="meal-panel lunch">
             <div class="time-badge">🕛 12 PM – 3 PM</div>
             <div v-for="(items, title) in groupedMeals.lunch" :key="title">
@@ -124,7 +122,7 @@
             </div>
           </div>
 
-          <!-- ── Dinner ── -->
+          <!-- Dinner -->
           <div v-show="activeTab === 'dinner'" class="meal-panel dinner">
             <div class="time-badge">🕕 6 PM – 10 PM</div>
             <div v-for="(items, title) in groupedMeals.dinner" :key="title">
@@ -153,9 +151,9 @@
       </div>
     </div>
 
-  </div><!-- end .app -->
+  </div>
 
-  <!-- ════════ FLOATING CART BAR ════════ -->
+  <!-- ════════ CART BAR ════════ -->
   <Transition name="slide-up">
     <div v-if="cartCount > 0" class="cart-bar">
       <div class="cart-left">
@@ -175,7 +173,7 @@
   <!-- ════════ SUCCESS TOAST ════════ -->
   <Transition name="slide-down">
     <div v-if="orderSuccess" class="order-success-toast">
-      🎉 Order recorded! Admin has been notified.
+      🎉 Payment recorded! Show this to the admin.
     </div>
   </Transition>
 
@@ -183,10 +181,9 @@
   <Transition name="modal">
     <div v-if="showPaySheet" class="modal-bg" @click.self="closePaySheet">
       <div class="pay-sheet">
-
         <div class="pay-handle" />
 
-        <!-- Step 1: Choose UPI app -->
+        <!-- STEP 1 — pick UPI app -->
         <template v-if="!utrStep">
           <div class="pay-header">
             <div>
@@ -212,7 +209,7 @@
               <div class="upi-logo phonepe-logo">Pe</div>
               <div class="upi-info">
                 <span class="upi-name">PhonePe</span>
-                <span class="upi-desc">Tap to open PhonePe</span>
+                <span class="upi-desc">Opens PhonePe app</span>
               </div>
               <span class="upi-arrow">›</span>
             </button>
@@ -221,7 +218,7 @@
               <div class="upi-logo gpay-logo">G</div>
               <div class="upi-info">
                 <span class="upi-name">Google Pay</span>
-                <span class="upi-desc">Tap to open GPay</span>
+                <span class="upi-desc">Opens GPay app</span>
               </div>
               <span class="upi-arrow">›</span>
             </button>
@@ -243,8 +240,33 @@
           <p class="pay-secure">🔒 Secured by UPI · Payments go directly to the mess</p>
         </template>
 
-        <!-- Step 2: UTR confirmation — shown ONLY after user returns from UPI app -->
-        <template v-else>
+        <!-- STEP 2 — waiting for user to pay -->
+        <template v-else-if="utrStep === 'waiting'">
+          <div class="pay-header">
+            <div>
+              <p class="pay-title">Opening {{ paidApp }}…</p>
+              <p class="pay-sub">Complete payment of ₹{{ cartTotal }} there</p>
+            </div>
+            <button class="pay-close" @click="closePaySheet">✕</button>
+          </div>
+
+          <div class="waiting-box">
+            <div class="waiting-ring">
+              <div class="upi-logo-lg" :style="{ background: utrAppColor }">{{ utrAppInitial }}</div>
+            </div>
+            <p class="waiting-title">Pay ₹{{ cartTotal }} in {{ paidApp }}</p>
+            <p class="waiting-hint">After paying, come back here and tap the button below</p>
+          </div>
+
+          <button class="paid-btn" @click="utrStep = 'utr'">
+            ✅ I've paid — enter transaction ID
+          </button>
+          <button class="paid-cancel" @click="utrStep = false; paidApp = null">← Go back</button>
+          <p class="pay-secure">🔒 Admin will verify your payment</p>
+        </template>
+
+        <!-- STEP 3 — enter UTR number -->
+        <template v-else-if="utrStep === 'utr'">
           <div class="pay-header">
             <div>
               <p class="pay-title">Confirm payment</p>
@@ -257,7 +279,7 @@
             <span class="utr-app-icon" :style="{ background: utrAppColor }">{{ utrAppInitial }}</span>
             <div>
               <p class="utr-app-name">Enter your transaction ID</p>
-              <p class="utr-app-hint">Find it in {{ paidApp }} → History → tap the transaction</p>
+              <p class="utr-app-hint">{{ paidApp }} → History → tap the transaction → copy UTR</p>
             </div>
           </div>
 
@@ -272,15 +294,13 @@
               @input="utrError = ''"
             />
             <p v-if="utrError" class="utr-error">{{ utrError }}</p>
+            <p class="utr-hint">This helps the admin verify your payment</p>
           </div>
 
-          <button class="paid-btn" :disabled="orderLoading || !utrNumber.trim()" @click="confirmPayment">
-            <span v-if="orderLoading" class="spinner-sm" />
-            {{ orderLoading ? 'Saving order...' : '✅ Confirm Payment' }}
+          <button class="paid-btn" :disabled="!utrNumber.trim()" @click="confirmPayment">
+            ✅ Confirm Payment
           </button>
-
-          <button class="paid-cancel" @click="utrStep = false; utrNumber = ''">← Go back</button>
-
+          <button class="paid-cancel" @click="utrStep = 'waiting'">← Go back</button>
           <p class="pay-secure">🔒 Admin will verify your transaction ID</p>
         </template>
 
@@ -310,16 +330,16 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { getCustomerMealsApi, placeOrderApi } from '@/services/api'
+import { getCustomerMealsApi } from '@/services/api'
 
-// ─── Meals & UI ───────────────────────────────────────────────
+// ─── Meals ────────────────────────────────────────────────────
 const meals        = ref([])
 const loading      = ref(true)
 const messName     = ref('')
 const imageUrls    = ref([])
 const mapUrl       = ref('')
 const currentSlide = ref(0)
-let slideInterval  = null
+let   slideInterval = null
 
 // ─── Rating ───────────────────────────────────────────────────
 const showRatingModal = ref(false)
@@ -392,14 +412,13 @@ const cartCount = computed(() =>
 )
 
 // ─── Payment ──────────────────────────────────────────────────
+// utrStep: false | 'waiting' | 'utr'
 const showPaySheet  = ref(false)
 const paidApp       = ref(null)
 const utrStep       = ref(false)
 const utrNumber     = ref('')
 const utrError      = ref('')
-const orderLoading  = ref(false)
 const orderSuccess  = ref(false)
-let   visibilityHandler = null
 
 const utrAppColor = computed(() => {
   const map = { PhonePe: '#5a2d9c', 'Google Pay': '#1a73e8', UPI: '#64748b' }
@@ -411,28 +430,24 @@ const utrAppInitial = computed(() => {
 })
 
 const openPaySheet = () => {
-  utrStep.value       = false
-  utrNumber.value     = ''
-  utrError.value      = ''
-  paidApp.value       = null
-  showPaySheet.value  = true
+  utrStep.value      = false
+  utrNumber.value    = ''
+  utrError.value     = ''
+  paidApp.value      = null
+  showPaySheet.value = true
 }
 
 const closePaySheet = () => {
-  showPaySheet.value  = false
-  utrStep.value       = false
-  utrNumber.value     = ''
-  utrError.value      = ''
-  paidApp.value       = null
-  if (visibilityHandler) {
-    document.removeEventListener('visibilitychange', visibilityHandler)
-    visibilityHandler = null
-  }
+  showPaySheet.value = false
+  utrStep.value      = false
+  utrNumber.value    = ''
+  utrError.value     = ''
+  paidApp.value      = null
 }
 
 const payWith = (app) => {
   const amount = cartTotal.value.toFixed(2)
-  const upiId  = '8484808337@ybl'
+  const upiId  = '8484808337@ybl'          // ← your UPI ID
   const name   = encodeURIComponent(messName.value || 'Mess Payment')
   const note   = encodeURIComponent('Meal order')
 
@@ -444,12 +459,12 @@ const payWith = (app) => {
   const labels = { phonepe: 'PhonePe', gpay: 'Google Pay', upi: 'UPI' }
   paidApp.value = labels[app]
 
-  // Fire deep link
+  // Fire UPI deep link
   const a = document.createElement('a')
   a.href  = links[app]
   a.click()
 
-  // Generic fallback after 1.8s
+  // Generic fallback after 1.8s if app not installed
   if (app !== 'upi') {
     setTimeout(() => {
       const fb = document.createElement('a')
@@ -458,21 +473,13 @@ const payWith = (app) => {
     }, 1800)
   }
 
-  // ── Show UTR step ONLY when user comes BACK from the UPI app ──
-  if (visibilityHandler) {
-    document.removeEventListener('visibilitychange', visibilityHandler)
-  }
-  visibilityHandler = () => {
-    if (document.visibilityState === 'visible') {
-      utrStep.value = true
-      document.removeEventListener('visibilitychange', visibilityHandler)
-      visibilityHandler = null
-    }
-  }
-  document.addEventListener('visibilitychange', visibilityHandler)
+  // Show "waiting" screen after 3s — simple, reliable, no visibility tricks
+  setTimeout(() => {
+    utrStep.value = 'waiting'
+  }, 3000)
 }
 
-const confirmPayment = async () => {
+const confirmPayment = () => {
   if (!utrNumber.value.trim()) {
     utrError.value = 'Please enter the transaction ID'
     return
@@ -481,35 +488,15 @@ const confirmPayment = async () => {
     utrError.value = 'Transaction ID looks too short'
     return
   }
-  orderLoading.value = true
-  try {
-    const payload = {
-      user_id:     new URLSearchParams(window.location.search).get('user_id'),
-      amount:      cartTotal.value,
-      payment_app: paidApp.value,
-      utr_number:  utrNumber.value.trim(),
-      items: Object.values(cart.value).map(e => ({
-        meal_id:   e.item.id,
-        meal_name: e.item.meal_name,
-        qty:       e.qty,
-        price:     Number(e.item.meal_price),
-        subtotal:  Number(e.item.meal_price) * e.qty,
-      }))
-    }
-    await placeOrderApi(payload)
-    cart.value          = {}
-    utrNumber.value     = ''
-    utrStep.value       = false
-    paidApp.value       = null
-    showPaySheet.value  = false
-    orderSuccess.value  = true
-    setTimeout(() => { orderSuccess.value = false }, 5000)
-  } catch (err) {
-    console.error(err)
-    utrError.value = 'Failed to save. Please try again or show screenshot to admin.'
-  } finally {
-    orderLoading.value = false
-  }
+
+  // Close sheet, clear cart, show success toast
+  cart.value         = {}
+  utrNumber.value    = ''
+  utrStep.value      = false
+  paidApp.value      = null
+  showPaySheet.value = false
+  orderSuccess.value = true
+  setTimeout(() => { orderSuccess.value = false }, 5000)
 }
 
 // ─── Helpers ──────────────────────────────────────────────────
@@ -564,12 +551,7 @@ onMounted(async () => {
   }
 })
 
-onBeforeUnmount(() => {
-  clearInterval(slideInterval)
-  if (visibilityHandler) {
-    document.removeEventListener('visibilitychange', visibilityHandler)
-  }
-})
+onBeforeUnmount(() => clearInterval(slideInterval))
 </script>
 
 <style scoped>
@@ -584,7 +566,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
   background: linear-gradient(180deg, #fafafa, #eef1f6);
 }
 
-/* HERO */
+/* ── HERO ── */
 .hero { position: relative; height: 230px; overflow: hidden; }
 .hero-track { display: flex; height: 100%; transition: transform .6s ease; }
 .hero-slide { flex: 0 0 100%; }
@@ -595,7 +577,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
   background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.15), rgba(0,0,0,.75));
 }
 
-/* NAVBAR */
+/* ── NAVBAR ── */
 .navbar {
   position: absolute; top: 0; left: 0; right: 0;
   display: flex; justify-content: space-between; align-items: center;
@@ -624,13 +606,10 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 }
 .hero-date { font-size: 12px; }
 .hero-dots { display: flex; gap: 5px; margin-top: 8px; }
-.hdot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(255,255,255,.4); cursor: pointer; transition: .2s;
-}
+.hdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.4); cursor: pointer; transition: .2s; }
 .hdot.active { background: white; width: 16px; border-radius: 3px; }
 
-/* TAB BAR */
+/* ── TAB BAR ── */
 .tab-bar {
   display: flex; width: 100%;
   background: rgba(255,255,255,.15);
@@ -650,29 +629,25 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .tab-icon { font-size: 19px; line-height: 1; margin-bottom: 3px; display: block; }
 .tab-label { font-size: 11px; }
 
-/* SHEET */
-.sheet-wrap { padding: 13px; background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81); min-height: 65vh; }
-.sheet {
-  background: white; border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6);
-}
+/* ── SHEET ── */
+.sheet-wrap { padding: 13px; background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81); min-height: 50vh; }
+.sheet { background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6); }
 .meal-panel { padding: 16px; }
 .time-badge { text-align: center; font-size: 11px; color: #64748b; margin-bottom: 14px; }
 
-/* GROUP TITLE */
+/* ── GROUP TITLE ── */
 .group-title {
   position: relative; font-size: 10px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 1.2px; color: #5f5c5c;
   text-align: center; margin: 16px 0 9px;
 }
 .group-title::before, .group-title::after {
-  content: ''; position: absolute; top: 50%;
-  width: 27%; height: 1px; background: #e2e8f0;
+  content: ''; position: absolute; top: 50%; width: 27%; height: 1px; background: #e2e8f0;
 }
 .group-title::before { left: 0; }
 .group-title::after  { right: 0; }
 
-/* ITEM CARDS */
+/* ── ITEM CARDS ── */
 .items { display: flex; flex-direction: column; gap: 10px; }
 .item-card {
   display: flex; justify-content: space-between; align-items: center;
@@ -691,67 +666,52 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
   display: flex; align-items: center; justify-content: center;
   font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.15);
 }
-.item-price {
-  background: #fff; color: #111; font-size: 12px; font-weight: 600;
-  padding: 3px 9px; border-radius: 20px;
-}
+.item-price { background: #fff; color: #111; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
 
-/* QTY STEPPER */
+/* ── QTY STEPPER ── */
 .qty-stepper {
   display: flex; align-items: center; gap: 4px;
   background: white; border-radius: 20px; padding: 2px 6px;
   box-shadow: 0 2px 6px rgba(0,0,0,.12);
 }
 .qty-btn {
-  width: 22px; height: 22px; border-radius: 50%;
-  background: #ff7a18; color: white; font-size: 15px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  line-height: 1; border: none; cursor: pointer;
+  width: 22px; height: 22px; border-radius: 50%; background: #ff7a18; color: white;
+  font-size: 15px; font-weight: 700; display: flex; align-items: center;
+  justify-content: center; line-height: 1; border: none; cursor: pointer;
 }
-.qty-num {
-  font-size: 13px; font-weight: 700;
-  min-width: 16px; text-align: center; color: #1e293b;
-}
+.qty-num { font-size: 13px; font-weight: 700; min-width: 16px; text-align: center; color: #1e293b; }
 
-/* STATES */
+/* ── STATES ── */
 .state-box { padding: 60px 20px; text-align: center; }
 .state-icon { font-size: 40px; margin-bottom: 12px; }
 .state-txt { font-size: 14px; color: #64748b; }
 .state-txt.error { color: #ef4444; }
 .spinner {
-  width: 30px; height: 30px; border: 3px solid #e5e7eb;
-  border-top-color: #ff7a18; border-radius: 50%;
-  animation: spin .8s linear infinite; margin: 0 auto 12px;
+  width: 30px; height: 30px; border: 3px solid #e5e7eb; border-top-color: #ff7a18;
+  border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px;
 }
 @keyframes spin { to { transform: rotate(360deg) } }
 
-/* MODAL BACKDROP */
+/* ── MODAL BACKDROP ── */
 .modal-bg {
   position: fixed; inset: 0; background: rgba(0,0,0,.5);
   display: flex; align-items: flex-end; justify-content: center; z-index: 200;
 }
 .modal-enter-active, .modal-leave-active { transition: opacity .25s ease; }
-.modal-enter-from,  .modal-leave-to      { opacity: 0; }
+.modal-enter-from, .modal-leave-to { opacity: 0; }
 
-/* RATING MODAL */
-.modal-box {
-  width: 100%; max-width: 480px; background: white;
-  border-radius: 22px 22px 0 0; padding: 24px; text-align: center;
-}
+/* ── RATING MODAL ── */
+.modal-box { width: 100%; max-width: 480px; background: white; border-radius: 22px 22px 0 0; padding: 24px; text-align: center; }
 .modal-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
 .modal-item-name { font-size: 20px; font-weight: 700; margin-bottom: 18px; color: #0f172a; }
 .stars { display: flex; justify-content: center; gap: 8px; font-size: 34px; }
 .star { color: #ddd; cursor: pointer; }
 .star.active { color: #fbbf24; }
-.submit-btn {
-  margin-top: 18px; width: 100%; padding: 13px; border-radius: 10px;
-  background: #ff7a18; color: white; font-weight: 700;
-  font-family: 'Poppins', sans-serif;
-}
+.submit-btn { margin-top: 18px; width: 100%; padding: 13px; border-radius: 10px; background: #ff7a18; color: white; font-weight: 700; font-family: 'Poppins', sans-serif; }
 .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
 .cancel-btn { margin-top: 10px; color: #ef4444; font-weight: 600; }
 
-/* CART BAR */
+/* ── CART BAR ── */
 .cart-bar {
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
   width: calc(100% - 32px); max-width: 448px;
@@ -760,96 +720,51 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
   z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,.28);
 }
 .cart-left { display: flex; align-items: center; gap: 6px; }
-.cart-badge {
-  background: #ff7a18; color: white; font-size: 11px; font-weight: 700;
-  width: 24px; height: 24px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-}
+.cart-badge { background: #ff7a18; color: white; font-size: 11px; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .cart-label { font-size: 12px; color: #94a3b8; font-weight: 500; }
 .cart-total { flex: 1; font-size: 17px; font-weight: 700; color: white; }
 .pay-btn {
-  background: linear-gradient(135deg, #7c3aed, #5b21b6);
-  color: white; padding: 10px 16px; border-radius: 14px;
-  font-size: 13px; font-weight: 700;
+  background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white;
+  padding: 10px 16px; border-radius: 14px; font-size: 13px; font-weight: 700;
   display: flex; align-items: center; gap: 6px; white-space: nowrap;
   box-shadow: 0 4px 14px rgba(91,33,182,.45); transition: transform .15s;
 }
 .pay-btn:active { transform: scale(.96); }
 
-.slide-up-enter-active, .slide-up-leave-active {
-  transition: transform .3s ease, opacity .3s ease;
-}
-.slide-up-enter-from, .slide-up-leave-to {
-  transform: translateX(-50%) translateY(80px); opacity: 0;
-}
+.slide-up-enter-active, .slide-up-leave-active { transition: transform .3s ease, opacity .3s ease; }
+.slide-up-enter-from, .slide-up-leave-to { transform: translateX(-50%) translateY(80px); opacity: 0; }
 
-/* SUCCESS TOAST */
+/* ── SUCCESS TOAST ── */
 .order-success-toast {
   position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
   background: #16a34a; color: white; padding: 12px 22px;
   border-radius: 14px; font-size: 13px; font-weight: 600;
-  z-index: 300; white-space: nowrap;
-  box-shadow: 0 6px 20px rgba(22,163,74,.35);
+  z-index: 300; white-space: nowrap; box-shadow: 0 6px 20px rgba(22,163,74,.35);
 }
-.slide-down-enter-active, .slide-down-leave-active {
-  transition: transform .3s ease, opacity .3s ease;
-}
-.slide-down-enter-from, .slide-down-leave-to {
-  transform: translateX(-50%) translateY(-60px); opacity: 0;
-}
+.slide-down-enter-active, .slide-down-leave-active { transition: transform .3s ease, opacity .3s ease; }
+.slide-down-enter-from, .slide-down-leave-to { transform: translateX(-50%) translateY(-60px); opacity: 0; }
 
-/* PAYMENT SHEET */
-.pay-sheet {
-  width: 100%; max-width: 480px; background: white;
-  border-radius: 26px 26px 0 0; padding: 12px 18px 36px;
-  max-height: 90vh; overflow-y: auto;
-}
-.pay-handle {
-  width: 36px; height: 4px; background: #e2e8f0;
-  border-radius: 2px; margin: 0 auto 16px;
-}
-.pay-header {
-  display: flex; justify-content: space-between;
-  align-items: flex-start; margin-bottom: 14px;
-}
+/* ── PAYMENT SHEET ── */
+.pay-sheet { width: 100%; max-width: 480px; background: white; border-radius: 26px 26px 0 0; padding: 12px 18px 36px; max-height: 90vh; overflow-y: auto; }
+.pay-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 16px; }
+.pay-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
 .pay-title { font-size: 17px; font-weight: 700; color: #0f172a; }
-.pay-sub   { font-size: 12px; color: #64748b; margin-top: 2px; }
-.pay-close {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: #f1f5f9; color: #64748b; font-size: 13px;
-  display: flex; align-items: center; justify-content: center;
-}
-.pay-summary {
-  background: #f8fafc; border-radius: 14px;
-  padding: 10px 14px; margin-bottom: 16px;
-}
-.pay-row {
-  display: flex; justify-content: space-between;
-  font-size: 13px; color: #475569; padding: 4px 0;
-}
+.pay-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+.pay-close { width: 30px; height: 30px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+.pay-summary { background: #f8fafc; border-radius: 14px; padding: 10px 14px; margin-bottom: 16px; }
+.pay-row { display: flex; justify-content: space-between; font-size: 13px; color: #475569; padding: 4px 0; }
 .pay-row-name { font-weight: 500; }
 .pay-row-amt  { font-weight: 600; color: #334155; }
-.total-row {
-  border-top: 1px solid #e2e8f0; margin-top: 6px; padding-top: 8px;
-  font-size: 14px; font-weight: 700; color: #0f172a;
-}
+.total-row { border-top: 1px solid #e2e8f0; margin-top: 6px; padding-top: 8px; font-size: 14px; font-weight: 700; color: #0f172a; }
 
-/* UPI BUTTONS */
+/* ── UPI BUTTONS ── */
 .upi-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
-.upi-btn {
-  width: 100%; display: flex; align-items: center; gap: 12px;
-  padding: 12px 14px; border-radius: 16px; border: 1.5px solid transparent;
-  cursor: pointer; transition: transform .15s; text-align: left;
-}
+.upi-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; }
 .upi-btn:active { transform: scale(.97); }
 .phonepe-btn { background: #f5f0ff; border-color: #c4b5fd; }
 .gpay-btn    { background: #f0fdf4; border-color: #86efac; }
 .other-btn   { background: #f8fafc; border-color: #e2e8f0; }
-.upi-logo {
-  width: 38px; height: 38px; border-radius: 11px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 800; flex-shrink: 0;
-}
+.upi-logo { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
 .phonepe-logo { background: #5a2d9c; color: white; }
 .gpay-logo    { background: #1a73e8; color: white; }
 .other-logo   { background: #64748b; color: white; }
@@ -859,47 +774,33 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .upi-arrow { font-size: 20px; color: #cbd5e1; font-weight: 300; }
 .pay-secure { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 16px; }
 
-/* UTR STEP */
-.utr-app-badge {
-  display: flex; align-items: center; gap: 12px;
-  background: #f8fafc; padding: 12px 14px;
-  border-radius: 14px; margin-bottom: 16px;
+/* ── WAITING SCREEN ── */
+.waiting-box { text-align: center; padding: 24px 0 20px; }
+.waiting-ring {
+  width: 80px; height: 80px; border-radius: 50%;
+  border: 3px solid #e2e8f0; display: flex; align-items: center;
+  justify-content: center; margin: 0 auto 16px; animation: pulse 1.8s ease-in-out infinite;
 }
-.utr-app-icon {
-  width: 40px; height: 40px; border-radius: 11px; color: white;
-  font-size: 13px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(124,58,237,.25); } 50% { box-shadow: 0 0 0 12px rgba(124,58,237,0); } }
+.upi-logo-lg { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: white; }
+.waiting-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+.waiting-hint { font-size: 12px; color: #64748b; line-height: 1.5; padding: 0 8px; }
+
+/* ── UTR STEP ── */
+.utr-app-badge { display: flex; align-items: center; gap: 12px; background: #f8fafc; padding: 12px 14px; border-radius: 14px; margin-bottom: 16px; }
+.utr-app-icon { width: 40px; height: 40px; border-radius: 11px; color: white; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .utr-app-name { font-size: 13px; font-weight: 700; color: #0f172a; }
 .utr-app-hint { font-size: 11px; color: #64748b; margin-top: 2px; }
 .utr-input-wrap { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 .utr-label { font-size: 13px; font-weight: 600; color: #334155; }
-.utr-input {
-  width: 100%; height: 48px; border: 1.5px solid #e2e8f0;
-  border-radius: 12px; padding: 0 14px;
-  font-size: 15px; font-family: 'Poppins', sans-serif; font-weight: 600;
-  letter-spacing: 1px; color: #0f172a; outline: none; transition: border-color .2s;
-}
+.utr-input { width: 100%; height: 48px; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 0 14px; font-size: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; letter-spacing: 1px; color: #0f172a; outline: none; transition: border-color .2s; }
 .utr-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.12); }
 .utr-error { font-size: 11px; color: #ef4444; font-weight: 500; }
+.utr-hint { font-size: 11px; color: #94a3b8; }
 
-.paid-btn {
-  width: 100%; padding: 14px; border-radius: 14px;
-  background: #16a34a; color: white; font-size: 14px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  border: none; cursor: pointer; transition: transform .15s;
-  font-family: 'Poppins', sans-serif; margin-bottom: 10px;
-}
+/* ── CONFIRM & CANCEL ── */
+.paid-btn { width: 100%; padding: 14px; border-radius: 14px; background: #16a34a; color: white; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer; transition: transform .15s; font-family: 'Poppins', sans-serif; margin-bottom: 10px; }
 .paid-btn:disabled { opacity: .55; cursor: not-allowed; }
 .paid-btn:not(:disabled):active { transform: scale(.97); }
-.paid-cancel {
-  display: block; width: 100%; text-align: center;
-  font-size: 12px; color: #94a3b8; background: none;
-  border: none; cursor: pointer; font-family: 'Poppins', sans-serif; padding: 4px;
-}
-.spinner-sm {
-  width: 14px; height: 14px;
-  border: 2px solid rgba(255,255,255,.4); border-top-color: white;
-  border-radius: 50%; animation: spin .7s linear infinite; display: inline-block;
-}
+.paid-cancel { display: block; width: 100%; text-align: center; font-size: 12px; color: #94a3b8; background: none; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; padding: 4px; }
 </style>
