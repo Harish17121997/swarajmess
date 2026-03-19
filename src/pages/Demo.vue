@@ -196,11 +196,14 @@
           </div>
         </div>
 
-        <!-- ── Section 1: UPI Apps with amount pre-filled ── -->
+        <!-- Section 1: Pay with amount pre-filled -->
         <p class="section-label">Pay directly — amount pre-filled</p>
         <div class="upi-list">
+
           <button class="upi-btn phonepe-btn" @click="payWith('phonepe')">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s" alt="PhonePe logo" class="scanner-logo phonepe-logo">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s"
+              class="app-img" alt="PhonePe" />
             <div class="upi-info">
               <span class="upi-name">PhonePe</span>
               <span class="upi-desc">Opens with ₹{{ cartTotal }} pre-filled</span>
@@ -209,7 +212,9 @@
           </button>
 
           <button class="upi-btn gpay-btn" @click="payWith('gpay')">
-            <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png" alt="PhonePe logo" class="upi-logo gpay-logo">
+            <img
+              src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png"
+              class="app-img" alt="Google Pay" />
             <div class="upi-info">
               <span class="upi-name">Google Pay</span>
               <span class="upi-desc">Opens with ₹{{ cartTotal }} pre-filled</span>
@@ -218,37 +223,40 @@
           </button>
         </div>
 
-        <!-- ── OR divider ── -->
+        <!-- OR divider -->
         <div class="or-divider"><span>or scan admin's QR code</span></div>
 
-        <!-- ── Section 2: Open scanner inside UPI app ── -->
+        <!-- Section 2: Open scanner in app -->
         <p class="section-label">Open QR scanner in app</p>
         <div class="scanner-list">
 
           <button class="scanner-btn phonepe-scan" @click="openScanner('phonepe')">
-            <!-- <div class="scanner-logo phonepe-logo">Pe</div> -->
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s" alt="PhonePe logo" class="scanner-logo phonepe-logo">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo4x8kSTmPUq4PFzl4HNT0gObFuEhivHOFYg&s"
+              class="app-img" alt="PhonePe" />
             <div class="upi-info">
               <span class="upi-name">PhonePe Scanner</span>
               <span class="upi-desc">Opens PhonePe → tap Scan QR inside</span>
             </div>
-            <svg class="scan-qr-icon" viewBox="0 0 24 24" fill="currentColor">
+            <svg class="scan-qr-icon" viewBox="0 0 24 24" fill="#94a3b8">
               <path d="M3 3h7v7H3zm1 1v5h5V4zm1 1h3v3H5zm8-2h7v7h-7zm1 1v5h5V4zm1 1h3v3h-3zM3 13h7v7H3zm1 1v5h5v-5zm1 1h3v3H5zm8 0h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm-2 2h2v2h-2zm2 2h2v2h-2z"/>
             </svg>
           </button>
 
           <button class="scanner-btn gpay-scan" @click="openScanner('gpay')">
-             <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png" alt="PhonePe logo" class="upi-logo gpay-logo">
+            <img
+              src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-pay-icon.png"
+              class="app-img" alt="Google Pay" />
             <div class="upi-info">
               <span class="upi-name">GPay Scanner</span>
               <span class="upi-desc">Opens Google Pay → tap Scan QR inside</span>
             </div>
-            <svg class="scan-qr-icon" viewBox="0 0 24 24" fill="currentColor">
+            <svg class="scan-qr-icon" viewBox="0 0 24 24" fill="#94a3b8">
               <path d="M3 3h7v7H3zm1 1v5h5V4zm1 1h3v3H5zm8-2h7v7h-7zm1 1v5h5V4zm1 1h3v3h-3zM3 13h7v7H3zm1 1v5h5v-5zm1 1h3v3H5zm8 0h2v2h-2zm0 4h2v2h-2zm4-4h2v2h-2zm-2 2h2v2h-2zm2 2h2v2h-2z"/>
             </svg>
           </button>
-
         </div>
+
         <!-- UPI ID copy row -->
         <div v-if="upiId" class="upi-id-row">
           <span class="upi-id-label">UPI ID</span>
@@ -291,7 +299,7 @@ const loading      = ref(true)
 const messName     = ref('')
 const imageUrls    = ref([])
 const mapUrl       = ref('')
-const upiId        = ref('')   // comes from backend
+const upiId        = ref('')
 const currentSlide = ref(0)
 let   slideInterval = null
 
@@ -373,10 +381,10 @@ const openPaySheet = () => {
   showPaySheet.value = true
 }
 
-// ── Pay with amount pre-filled ──
+// ── Pay with amount pre-filled — fires deep link ──
 const payWith = (app) => {
   const amount = cartTotal.value.toFixed(2)
-  const id     = upiId.value
+  const id     = upiId.value.trim()
   const name   = encodeURIComponent(messName.value || 'Mess Payment')
   const note   = encodeURIComponent('Meal order')
 
@@ -387,9 +395,10 @@ const payWith = (app) => {
   }
 
   const a = document.createElement('a')
-  a.href  = links[app]
+  a.href  = links[app] || links.upi
   a.click()
 
+  // Fallback to generic UPI after 1.8s if specific app not installed
   if (app !== 'upi') {
     setTimeout(() => {
       const fb = document.createElement('a')
@@ -399,14 +408,12 @@ const payWith = (app) => {
   }
 }
 
-// ── Open app so user can tap Scan QR inside (no amount) ──
-// Browser cannot directly open the scanner — user taps Scan inside the app
+// ── Open app for QR scan (no amount — QR sets it) ──
 const openScanner = (app) => {
-  const id   = upiId.value
+  const id   = upiId.value.trim()
   const name = encodeURIComponent(messName.value || 'Mess Payment')
   const note = encodeURIComponent('Meal order')
 
-  // No amount — so the QR code the user scans will set the amount
   const links = {
     phonepe: `phonepe://pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`,
     gpay:    `tez://upi/pay?pa=${id}&pn=${name}&cu=INR&tn=${note}`,
@@ -426,7 +433,7 @@ const openScanner = (app) => {
   }
 }
 
-// ── Copy UPI ID ──
+// ── Copy UPI ID to clipboard ──
 const copyUpiId = async () => {
   try {
     await navigator.clipboard.writeText(upiId.value)
@@ -471,10 +478,7 @@ onMounted(async () => {
     messName.value  = res.data?.user_name  || ''
     imageUrls.value = res.data?.image_urls || []
     mapUrl.value    = res.data?.location?.map_url || ''
-
-    // ── UPI ID from backend ──
-    // Update the key below to match your API response field name
-    upiId.value = res.data?.upi_id || '8484808337@ybl'
+    upiId.value     = res.data?.upi_id     || ''
 
     const available = allTabs
       .filter(t => groupByTitle(meals.value.filter(
@@ -509,7 +513,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 
 .app { font-family: 'Poppins', sans-serif; max-width: 480px; margin: auto; min-height: 100vh; background: linear-gradient(180deg, #fafafa, #eef1f6); }
 
-/* HERO */
+/* ── HERO ── */
 .hero { position: relative; height: 230px; overflow: hidden; }
 .hero-track { display: flex; height: 100%; transition: transform .6s ease; }
 .hero-slide { flex: 0 0 100%; }
@@ -530,14 +534,14 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .hdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.4); cursor: pointer; transition: .2s; }
 .hdot.active { background: white; width: 16px; border-radius: 3px; }
 
-/* TAB BAR */
+/* ── TAB BAR ── */
 .tab-bar { display: flex; width: 100%; background: rgba(255,255,255,.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,.2); position: sticky; top: 0; box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6); z-index: 30; }
 .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 11px 4px 10px; background: transparent; border: none; border-bottom: 3px solid transparent; font-size: 11px; font-weight: 700; transition: color .18s, border-color .18s; letter-spacing: .1px; }
 .tab-btn.active { color: #ff420b; border-bottom-color: #5fc2db; }
 .tab-icon { font-size: 19px; line-height: 1; margin-bottom: 3px; display: block; }
 .tab-label { font-size: 11px; }
 
-/* SHEET */
+/* ── SHEET ── */
 .sheet-wrap { padding: 13px; background: linear-gradient(135deg, #7b7c7d, #4b338f, #847e81); min-height: 50vh; }
 .sheet { background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6); }
 .meal-panel { padding: 16px; }
@@ -547,7 +551,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .group-title::before { left: 0; }
 .group-title::after  { right: 0; }
 
-/* ITEMS */
+/* ── ITEMS ── */
 .items { display: flex; flex-direction: column; gap: 10px; }
 .item-card { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px 9px 18px; border-radius: 16px; background: #f8fafc; transition: .2s; box-shadow: 0 3px 8px rgba(0,0,0,.05); cursor: pointer; }
 .item-card:active { transform: scale(.97); }
@@ -563,7 +567,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .qty-btn { width: 22px; height: 22px; border-radius: 50%; background: #ff7a18; color: white; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1; border: none; cursor: pointer; }
 .qty-num { font-size: 13px; font-weight: 700; min-width: 16px; text-align: center; color: #1e293b; }
 
-/* STATES */
+/* ── STATES ── */
 .state-box { padding: 60px 20px; text-align: center; }
 .state-icon { font-size: 40px; margin-bottom: 12px; }
 .state-txt { font-size: 14px; color: #64748b; }
@@ -571,12 +575,12 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .spinner { width: 30px; height: 30px; border: 3px solid #e5e7eb; border-top-color: #ff7a18; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
 @keyframes spin { to { transform: rotate(360deg) } }
 
-/* MODAL */
+/* ── MODAL ── */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: flex-end; justify-content: center; z-index: 200; }
 .modal-enter-active, .modal-leave-active { transition: opacity .25s ease; }
 .modal-enter-from, .modal-leave-to { opacity: 0; }
 
-/* RATING */
+/* ── RATING ── */
 .modal-box { width: 100%; max-width: 480px; background: white; border-radius: 22px 22px 0 0; padding: 24px; text-align: center; }
 .modal-title { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
 .modal-item-name { font-size: 20px; font-weight: 700; margin-bottom: 18px; color: #0f172a; }
@@ -587,7 +591,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
 .cancel-btn { margin-top: 10px; color: #ef4444; font-weight: 600; }
 
-/* CART BAR */
+/* ── CART BAR ── */
 .cart-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 448px; background: #1e293b; border-radius: 20px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; z-index: 100; box-shadow: 0 8px 32px rgba(0,0,0,.28); }
 .cart-left { display: flex; align-items: center; gap: 6px; }
 .cart-badge { background: #ff7a18; color: white; font-size: 11px; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
@@ -598,7 +602,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .slide-up-enter-active, .slide-up-leave-active { transition: transform .3s ease, opacity .3s ease; }
 .slide-up-enter-from, .slide-up-leave-to { transform: translateX(-50%) translateY(80px); opacity: 0; }
 
-/* PAYMENT SHEET */
+/* ── PAYMENT SHEET ── */
 .pay-sheet { width: 100%; max-width: 480px; background: white; border-radius: 26px 26px 0 0; padding: 12px 18px 36px; max-height: 92vh; overflow-y: auto; }
 .pay-handle { width: 36px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 16px; }
 .pay-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
@@ -606,48 +610,48 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .pay-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
 .pay-close { width: 30px; height: 30px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 13px; display: flex; align-items: center; justify-content: center; }
 
-/* SUMMARY */
+/* ── SUMMARY ── */
 .pay-summary { background: #f8fafc; border-radius: 14px; padding: 10px 14px; margin-bottom: 16px; }
 .pay-row { display: flex; justify-content: space-between; font-size: 13px; color: #475569; padding: 4px 0; }
 .pay-row-name { font-weight: 500; }
 .pay-row-amt { font-weight: 600; color: #334155; }
 .total-row { border-top: 1px solid #e2e8f0; margin-top: 6px; padding-top: 8px; font-size: 14px; font-weight: 700; color: #0f172a; }
 
-/* SECTION LABEL */
+/* ── SECTION LABEL ── */
 .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; margin-bottom: 10px; display: block; }
 
-/* UPI BUTTONS */
+/* ── APP IMAGE ── */
+.app-img { width: 36px; height: 36px; border-radius: 10px; object-fit: contain; flex-shrink: 0; background: white; }
+
+/* ── UPI BUTTONS ── */
 .upi-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
-.upi-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; }
+.upi-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; background: white; }
 .upi-btn:active { transform: scale(.97); }
 .phonepe-btn { background: #f5f0ff; border-color: #c4b5fd; }
 .gpay-btn    { background: #ffffff; border-color: #86efac; }
 .other-btn   { background: #f8fafc; border-color: #e2e8f0; }
-.upi-logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
-.phonepe-logo { background: #5a2d9c; color: white; }
-.gpay-logo    { color: white; }
-.other-logo   { background: #64748b; color: white; font-size: 16px; }
+.upi-logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+.other-logo { background: #64748b; color: white; }
 .upi-info { flex: 1; display: flex; flex-direction: column; gap: 1px; }
 .upi-name { font-size: 13px; font-weight: 700; color: #0f172a; }
 .upi-desc { font-size: 11px; color: #64748b; }
 .upi-arrow { font-size: 20px; color: #cbd5e1; }
 
-/* OR DIVIDER */
+/* ── OR DIVIDER ── */
 .or-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0 14px; }
 .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
 .or-divider span { font-size: 11px; color: #94a3b8; font-weight: 600; white-space: nowrap; }
 
-/* SCANNER BUTTONS */
+/* ── SCANNER BUTTONS ── */
 .scanner-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
 .scanner-btn { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 14px; border: 1.5px solid transparent; cursor: pointer; transition: transform .15s; text-align: left; }
 .scanner-btn:active { transform: scale(.97); }
 .phonepe-scan { background: #f5f0ff; border-color: #c4b5fd; }
 .gpay-scan    { background: #ffffff; border-color: #86efac; }
 .other-scan   { background: #f8fafc; border-color: #e2e8f0; }
-.scanner-logo { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
 .scan-qr-icon { width: 18px; height: 18px; flex-shrink: 0; }
 
-/* UPI ID ROW */
+/* ── UPI ID ROW ── */
 .upi-id-row { display: flex; align-items: center; gap: 8px; background: #f8fafc; border-radius: 12px; padding: 10px 14px; margin-bottom: 4px; }
 .upi-id-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .5px; flex-shrink: 0; }
 .upi-id-val { flex: 1; font-size: 13px; font-weight: 600; color: #0f172a; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
