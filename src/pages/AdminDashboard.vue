@@ -310,7 +310,7 @@
           </button>
 
           <!-- Preview how it will look to customer -->
-          <div v-if="upiId.trim()" class="upi-preview">
+          <div v-if="upiId && upiId?.trim()" class="upi-preview">
             <p class="upi-preview-label">Preview — how customers see it</p>
             <div class="upi-preview-card">
               <div class="upi-preview-left">
@@ -388,7 +388,7 @@ const longitude = ref(null)
 const currentMealTab = ref('breakfast')
 const showUpiConfirm = ref(false)
 // upi id
-const upiId        = ref('')
+const upiId = ref('')
 const upiSaving    = ref(false)
 /* ---------- DATE ---------- */
 const today = new Date().toLocaleDateString('en-IN', {
@@ -595,7 +595,7 @@ async function fetchCurrentMeals() {
     currentMeals.value = res.data.meals
     latitude.value = res.data.location?.latitude
     longitude.value = res.data.location?.longitude
-    upiId.value = res.data?.upi_id
+    upiId.value = res.data?.upi_id || ''
   } catch (error) {
     toast.error("Failed to fetch current meals")
   } finally {
