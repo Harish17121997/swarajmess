@@ -303,7 +303,7 @@ const today = new Date().toLocaleDateString('en-IN', {
 const allTabs = [
   { key: 'breakfast', label: 'Breakfast', icon: '🍳' },
   { key: 'lunch',     label: 'Lunch',     icon: '🍜' },
-  { key: 'dinner',    label: 'Dinner',    icon: '🍱' },
+  { key: 'dinner',    label: 'Dinner',    icon: '🍲' },
 ]
 
 const groupByTitle = (arr) => {

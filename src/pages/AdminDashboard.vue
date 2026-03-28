@@ -86,10 +86,10 @@
           </div>
           <!-- <label>Menu Items</label> -->
 
-          <div class="menu-row" v-for="(row, index) in rows" :key="index">
+          <div class="menu-row" v-for="(row, index) in rows" :key="row.id">
             <Multiselect v-model="row.selected" :options="allItems" label="label" track-by="value" :multiple="false"
               :taggable="true" :tag-placeholder="''" :close-on-select="true" :show-labels="false"
-              placeholder="Select food item" class="multi" :disabled="!messOpen" @tag="addNewMeal">
+              placeholder="Select food item" class="multi" :disabled="!messOpen" @tag="(value) => addNewMeal(value, row)">
               <template #option="{ option }">
                 <div class="option-row">
                   <span>{{ option.label }}</span>
@@ -367,7 +367,8 @@ const statusLoading = ref(false)
 const success = ref(false)
 const loading = ref(false)
 const menuTitle = ref("")
-const rows = ref([{ selected: null, price: null }])
+// const rows = ref([{ selected: null, price: null }])
+const rows = ref([createRow()])
 const allItems = ref([])
 const mealsLoading = ref(false)
 const addingMeal = ref(false)
@@ -409,7 +410,7 @@ const uploadedImages = ref([])
 const uploadingImages = ref(false)
 /* ---------- MULTISELECT ROWS ---------- */
 function addRow() {
-  rows.value.push({ selected: [] })
+  rows.value.push(createRow())
 }
 
 const groupedMeals = computed(() => {
@@ -460,7 +461,7 @@ async function deleteMeal(option) {
   }
 }
 
-async function addNewMeal(searchText) {
+async function addNewMeal(searchText, row) {
   const trimmed = searchText?.trim()
   if (!trimmed) return
   const exists = allItems.value.find(
@@ -477,7 +478,8 @@ async function addNewMeal(searchText) {
     isNew: true
   }
   allItems.value.push(tempItem)
-  rows.value[rows.value.length - 1].selected = tempItem
+  // rows.value[rows.value.length - 1].selected = tempItem
+  row.selected = tempItem
 }
 /* ---------- LOGOUT ---------- */
 async function deleteUploadedImage(imageUrl) {
@@ -522,6 +524,13 @@ async function fetchMessStatus() {
     messName.value = res.data.user_name
   } catch (error) {
     console.log('Failed to fetch status')
+  }
+}
+function createRow() {
+  return {
+    id: Date.now() + Math.random(),
+    selected: null,
+    price: null
   }
 }
 
