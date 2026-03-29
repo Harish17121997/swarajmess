@@ -1386,12 +1386,14 @@ label {
   background: #e9f3ff;
   margin-bottom: 6px;
   transition: .2s ease;
-  align-items: flex-start; 
+  align-items: center; 
+  border: 1px dotted #818181;
 }
 
 .meal-item:hover {
   background: #e0f2fe;
   transform: translateY(-1px);
+  
 }
 
 .meal-name {
