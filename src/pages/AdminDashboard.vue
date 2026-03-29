@@ -1401,6 +1401,7 @@ label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-transform: capitalize;
 }
 
 .meal-right {

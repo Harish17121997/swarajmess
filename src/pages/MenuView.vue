@@ -527,7 +527,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .sheet { background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6); }
 .meal-panel { padding: 16px; }
 .time-badge { text-align: center; font-size: 11px; color: #64748b; margin-bottom: 14px; }
-.group-title { position: relative; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #5f5c5c; text-align: center; margin: 16px 0 9px; }
+.group-title { position: relative; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #5f5c5c; text-align: center; margin: 16px 0 9px; }
 .group-title::before, .group-title::after { content: ''; position: absolute; top: 50%; width: 27%; height: 1px; background: #e2e8f0; }
 .group-title::before { left: 0; }
 .group-title::after  { right: 0; }
