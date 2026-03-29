@@ -534,13 +534,13 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 
 /* ITEMS */
 .items { display: flex; flex-direction: column; gap: 10px; }
-.item-card { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px 9px 18px; border-radius: 16px; background: #f8fafc; transition: .2s; box-shadow: 0 3px 8px rgba(0,0,0,.05); cursor: pointer; }
+.item-card { display: flex; justify-content: space-between; align-items: flex-start;   padding: 10px 15px 9px 18px; border-radius: 16px; background: #f8fafc; transition: .2s; box-shadow: 0 3px 8px rgba(0,0,0,.05); cursor: pointer; }
 .item-card:active { transform: scale(.97); }
 .item-card.selected { outline: 2px solid #ff7a18; outline-offset: -2px; }
 .breakfast .item-card { background: linear-gradient(135deg, #fff1c9, #ffa98a); }
 .lunch     .item-card { background: linear-gradient(135deg, #d8f1ff, #a8e0ff); }
 .dinner    .item-card { background: linear-gradient(135deg, #e8dcff, #c6b5ff); }
-.item-name { font-size: 14px; font-weight: 600; color: #1e293b; text-transform: capitalize;}
+.item-name { font-size: 14px; font-weight: 600; color: #1e293b; flex: 1; margin-right: 10px; text-transform: capitalize; white-space: normal; word-break: break-word; overflow-wrap: break-word;}
 .item-right { display: flex; align-items: center; gap: 8px; }
 .rate-btn { width: 30px; height: 30px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
 .item-price { background: #fff; color: #111; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }

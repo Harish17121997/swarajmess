@@ -1381,12 +1381,12 @@ label {
 .meal-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   padding: 10px 12px;
   border-radius: 12px;
   background: #e9f3ff;
   margin-bottom: 6px;
   transition: .2s ease;
+  align-items: flex-start; 
 }
 
 .meal-item:hover {
@@ -1395,13 +1395,7 @@ label {
 }
 
 .meal-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-transform: capitalize;
+  font-size: 14px; font-weight: 600; color: #1e293b; flex: 1; margin-right: 10px; text-transform: capitalize; white-space: normal; word-break: break-word; overflow-wrap: break-word;
 }
 
 .meal-right {
