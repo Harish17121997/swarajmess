@@ -500,7 +500,7 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .hero-slide { flex: 0 0 100%; display: flex;  align-items: center; justify-content: center; background: linear-gradient(135deg, #1e293b, #334155);}
 .hero-img { width: 100%; height: 100%; object-fit: contain;}
 .hero-gradient { width: 100%; height: 100%; background: linear-gradient(135deg, #1e293b, #334155); }
-.hero-scrim { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.15), rgba(0,0,0,.75)); }
+.hero-scrim { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,.05), rgba(0,0,0,.55)); }
 .navbar { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 13px 15px; z-index: 10; }
 .navbar-left { display: flex; align-items: center; gap: 10px; }
 .nav-icon { width: 38px; height: 38px; border-radius: 12px; background: white; display: flex; align-items: center; justify-content: center; font-size: 18px; }
