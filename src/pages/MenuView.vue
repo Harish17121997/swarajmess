@@ -495,10 +495,10 @@ button { border: none; background: none; font-family: 'Poppins', sans-serif; cur
 .app { font-family: 'Poppins', sans-serif; max-width: 480px; margin: auto; min-height: 100vh; background: linear-gradient(180deg, #fafafa, #eef1f6); }
 
 /* HERO */
-.hero { position: relative; height: 230px; overflow: hidden; }
+.hero { position: relative; height: 230px; overflow: hidden;  display: flex;  align-items: center;  justify-content: center; background: linear-gradient(135deg, #1e293b, #334155); }
 .hero-track { display: flex; height: 100%; transition: transform .6s ease; }
-.hero-slide { flex: 0 0 100%; }
-.hero-img { width: 100%; height: 100%; object-fit: cover; }
+.hero-slide { flex: 0 0 100%; display: flex;  align-items: center; justify-content: center; background: linear-gradient(135deg, #1e293b, #334155);}
+.hero-img { width: 100%; height: 100%; object-fit: contain;}
 .hero-gradient { width: 100%; height: 100%; background: linear-gradient(135deg, #1e293b, #334155); }
 .hero-scrim { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.15), rgba(0,0,0,.75)); }
 .navbar { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; padding: 13px 15px; z-index: 10; }
